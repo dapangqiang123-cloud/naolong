@@ -11,8 +11,11 @@ export default function PageHeader({ currentTab }) {
 
   useEffect(() => {
     const handler = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
-      if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
+      // 给按钮点击一点时间执行
+      setTimeout(() => {
+        if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+        if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
+      }, 0)
     }
     document.addEventListener('mousedown', handler)
     document.addEventListener('touchend', handler)
@@ -94,10 +97,14 @@ export default function PageHeader({ currentTab }) {
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>menu</span>
         </button>
         {menuOpen && (
-          <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
+          <div
+            style={{ ...dropdownStyle, top: '48px', left: 0 }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
             <button
               style={itemStyle}
-              onTouchStart={handleMenuItemClick(() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) })}
+              onTouchEnd={handleMenuItemClick(() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) })}
               onClick={handleMenuItemClick(() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) })}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
@@ -137,10 +144,14 @@ export default function PageHeader({ currentTab }) {
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>more_vert</span>
         </button>
         {moreOpen && (
-          <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
+          <div
+            style={{ ...dropdownStyle, top: '48px', right: 0 }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
             <button
               style={itemStyle}
-              onTouchStart={handleCopyLink}
+              onTouchEnd={handleCopyLink}
               onClick={handleCopyLink}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>link</span>
@@ -149,7 +160,7 @@ export default function PageHeader({ currentTab }) {
             <div style={{ height: '1px', background: 'var(--border)' }} />
             <button
               style={itemStyle}
-              onTouchStart={handleMenuItemClick(() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) })}
+              onTouchEnd={handleMenuItemClick(() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) })}
               onClick={handleMenuItemClick(() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) })}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
