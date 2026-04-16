@@ -6,6 +6,8 @@ export default function PageHeader({ currentTab }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [skinPressed, setSkinPressed] = useState(false)
+  const [copyPressed, setCopyPressed] = useState(false)
 
   const copyLink = () => {
     try {
@@ -36,21 +38,8 @@ export default function PageHeader({ currentTab }) {
     borderRadius: '12px',
     boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
     zIndex: 200,
-    minWidth: '160px',
+    minWidth: '180px',
     overflow: 'hidden',
-  }
-
-  const itemStyle = {
-    display: 'flex', alignItems: 'center', gap: '12px',
-    width: '100%', padding: '14px 16px',
-    background: 'none', border: 'none',
-    color: 'var(--text-primary)',
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontSize: '14px', fontWeight: 500,
-    cursor: 'pointer', textAlign: 'left',
-    boxSizing: 'border-box',
-    WebkitTapHighlightColor: 'transparent',
-    touchAction: 'manipulation',
   }
 
   return (
@@ -72,17 +61,37 @@ export default function PageHeader({ currentTab }) {
       <div style={{ position: 'relative', zIndex: 201 }}>
         <button
           onClick={() => { setMenuOpen(v => !v); setMoreOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation' }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '12px', margin: '-12px',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
+          }}
         >
-          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px', pointerEvents: 'none' }}>menu</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px', display: 'block', pointerEvents: 'none' }}>menu</span>
         </button>
         {menuOpen && (
-          <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
+          <div style={{ ...dropdownStyle, top: '52px', left: '-8px' }}>
             <button
-              style={itemStyle}
+              onTouchStart={() => setSkinPressed(true)}
+              onTouchEnd={() => { setSkinPressed(false); setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
               onClick={() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                width: '100%', padding: '16px 20px',
+                background: skinPressed ? 'var(--accent-soft)' : 'none',
+                border: 'none',
+                color: 'var(--text-primary)',
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '15px', fontWeight: 500,
+                cursor: 'pointer', textAlign: 'left',
+                boxSizing: 'border-box',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
+                transition: 'background 0.1s',
+              }}
             >
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px', pointerEvents: 'none' }}>palette</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '22px', pointerEvents: 'none', flexShrink: 0 }}>palette</span>
               <span style={{ pointerEvents: 'none' }}>皮肤中心</span>
             </button>
           </div>
@@ -90,7 +99,7 @@ export default function PageHeader({ currentTab }) {
       </div>
 
       {/* 中：tabs */}
-      <nav style={{ display: 'flex', gap: '32px' }}>
+      <nav style={{ display: 'flex', gap: '28px' }}>
         {tabs.map(({ label, view }) => (
           <button key={view}
             onClick={() => setCurrentView(view)}
@@ -100,7 +109,7 @@ export default function PageHeader({ currentTab }) {
               color: currentTab === view ? 'var(--accent)' : 'var(--text-secondary)',
               fontFamily: "'Space Grotesk', sans-serif",
               fontWeight: 700, fontSize: '14px',
-              cursor: 'pointer', padding: '0 0 4px 0',
+              cursor: 'pointer', padding: '4px 0',
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
             }}>
@@ -113,14 +122,39 @@ export default function PageHeader({ currentTab }) {
       <div style={{ position: 'relative', zIndex: 201 }}>
         <button
           onClick={() => { setMoreOpen(v => !v); setMenuOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation' }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '12px', margin: '-12px',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
+          }}
         >
-          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px', pointerEvents: 'none' }}>more_vert</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px', display: 'block', pointerEvents: 'none' }}>more_vert</span>
         </button>
         {moreOpen && (
-          <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
-            <button style={itemStyle} onClick={copyLink}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px', pointerEvents: 'none' }}>link</span>
+          <div style={{ ...dropdownStyle, top: '52px', right: '-8px' }}>
+            <button
+              onTouchStart={() => setCopyPressed(true)}
+              onTouchEnd={() => { setCopyPressed(false); copyLink() }}
+              onClick={copyLink}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                width: '100%', padding: '16px 20px',
+                background: copyPressed ? 'var(--accent-soft)' : copied ? 'var(--accent-soft)' : 'none',
+                border: 'none',
+                color: 'var(--text-primary)',
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '15px', fontWeight: 500,
+                cursor: 'pointer', textAlign: 'left',
+                boxSizing: 'border-box',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
+                transition: 'background 0.1s',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ color: copied ? 'var(--accent)' : 'var(--accent)', fontSize: '22px', pointerEvents: 'none', flexShrink: 0 }}>
+                {copied ? 'check_circle' : 'link'}
+              </span>
               <span style={{ pointerEvents: 'none' }}>{copied ? '已复制 ✓' : '复制链接'}</span>
             </button>
           </div>
