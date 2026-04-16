@@ -77,8 +77,9 @@ export default function PageHeader({ currentTab }) {
     fontFamily: "'Space Grotesk', sans-serif",
     fontSize: '14px', fontWeight: 500,
     cursor: 'pointer', textAlign: 'left',
-    WebkitTapHighlightColor: 'transparent',
-    touchAction: 'manipulation',
+    pointerEvents: 'auto',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
   }
 
   return (
@@ -98,15 +99,19 @@ export default function PageHeader({ currentTab }) {
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>menu</span>
         </button>
         {menuOpen && (
-          <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
-            <button
-              style={itemStyle}
-              onMouseDown={(e) => { e.preventDefault(); handleSkinCenter() }}
-              onTouchStart={(e) => { e.preventDefault(); handleSkinCenter() }}
+          <div
+            style={{ ...dropdownStyle, top: '48px', left: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{...itemStyle, transition: 'background 0.2s'}}
+              onClick={handleSkinCenter}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
               皮肤中心
-            </button>
+            </div>
           </div>
         )}
       </div>
@@ -141,24 +146,29 @@ export default function PageHeader({ currentTab }) {
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>more_vert</span>
         </button>
         {moreOpen && (
-          <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
-            <button
-              style={itemStyle}
-              onMouseDown={(e) => { e.preventDefault(); handleCopyLink() }}
-              onTouchStart={(e) => { e.preventDefault(); handleCopyLink() }}
+          <div
+            style={{ ...dropdownStyle, top: '48px', right: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{...itemStyle, transition: 'background 0.2s'}}
+              onClick={handleCopyLink}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>link</span>
               {copied ? '已复制 ✓' : '复制链接'}
-            </button>
+            </div>
             <div style={{ height: '1px', background: 'var(--border)' }} />
-            <button
-              style={itemStyle}
-              onMouseDown={(e) => { e.preventDefault(); handlePoster() }}
-              onTouchStart={(e) => { e.preventDefault(); handlePoster() }}
+            <div
+              style={{...itemStyle, transition: 'background 0.2s'}}
+              onClick={handlePoster}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
               生成海报
-            </button>
+            </div>
           </div>
         )}
       </div>
