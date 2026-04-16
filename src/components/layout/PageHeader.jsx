@@ -85,7 +85,7 @@ export default function PageHeader({ currentTab }) {
           <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
             <button
               style={itemStyle}
-              onClick={(e) => { e.stopPropagation(); setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
+              onClick={(e) => { e.stopPropagation(); alert('点击了'); setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
               皮肤中心
