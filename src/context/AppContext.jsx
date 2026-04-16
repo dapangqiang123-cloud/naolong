@@ -16,6 +16,7 @@ export const SKINS = {
   BRUTALIST_WHITE: 'brutalist_white',
   MECHANICAL_OLIVE: 'mechanical_olive',
   DEEP_VOID: 'deep_void',
+  VINTAGE_LATTE: 'vintage_latte',
 }
 
 const SKIN_TOKENS = {
@@ -62,6 +63,17 @@ const SKIN_TOKENS = {
     '--accent': '#38bdf8',
     '--accent-soft': 'rgba(56,189,248,0.15)',
     '--border': 'rgba(56,189,248,0.12)',
+  },
+  vintage_latte: {
+    name: '复古拿铁',
+    '--bg-primary': '#f0e6d3',
+    '--bg-secondary': '#e8d9c0',
+    '--bg-card': '#ded0b6',
+    '--text-primary': '#2c1f0e',
+    '--text-secondary': '#7a5c3a',
+    '--accent': '#8b4513',
+    '--accent-soft': 'rgba(139,69,19,0.12)',
+    '--border': 'rgba(139,69,19,0.15)',
   },
 }
 

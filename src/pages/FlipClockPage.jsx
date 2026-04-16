@@ -4,7 +4,7 @@ import { useFlipClock } from '../hooks/useFlipClock'
 import { VIEWS } from '../context/AppContext'
 
 export default function FlipClockPage() {
-  const { h0, h1, m0, m1, s0, s1, ampm } = useFlipClock()
+  const { h0, h1, m0, m1, ampm } = useFlipClock()
   return (
     <div className="relative min-h-screen overflow-hidden flex flex-col"
          style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
@@ -16,28 +16,22 @@ export default function FlipClockPage() {
         <div className="absolute top-12 left-12 opacity-10 pointer-events-none select-none">
           <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">FOCUS</p>
         </div>
-        <div className="flex items-center gap-2 md:gap-6">
-          <div className="flex gap-1 md:gap-2">
+
+        <div className="flex items-center gap-3 w-full justify-center">
+          <div className="flex gap-2">
             <FlipDigit value={h0} />
             <FlipDigit value={h1} />
           </div>
           <div className="flex flex-col gap-3 mb-1">
-            <div className="w-2 h-2 md:w-3 md:h-3 rounded-full" style={{ background: 'var(--accent)' }} />
-            <div className="w-2 h-2 md:w-3 md:h-3 rounded-full" style={{ background: 'var(--accent)' }} />
+            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)' }} />
+            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)' }} />
           </div>
-          <div className="flex gap-1 md:gap-2">
+          <div className="flex gap-2">
             <FlipDigit value={m0} />
             <FlipDigit value={m1} />
           </div>
-          <div className="flex flex-col gap-3 mb-1">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--border)' }} />
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--border)' }} />
-          </div>
-          <div className="flex gap-1 md:gap-2">
-            <FlipDigit value={s0} className="w-[14vw] h-[21vw] max-w-[80px] max-h-[120px]" digitClass="text-[7vw] max-text-5xl" />
-            <FlipDigit value={s1} className="w-[14vw] h-[21vw] max-w-[80px] max-h-[120px]" digitClass="text-[7vw] max-text-5xl" />
-          </div>
         </div>
+
         <div className="mt-6 flex items-center gap-3">
           <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em] transition-colors"
                 style={{ color: ampm === 'AM' ? 'var(--accent)' : 'var(--border)' }}>AM</span>
@@ -45,6 +39,7 @@ export default function FlipClockPage() {
           <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em] transition-colors"
                 style={{ color: ampm === 'PM' ? 'var(--accent)' : 'var(--border)' }}>PM</span>
         </div>
+
         <div className="mt-12 text-center">
           <p className="font-['Space_Grotesk'] uppercase tracking-[0.2em] text-xs mb-2"
              style={{ color: 'var(--text-secondary)' }}>Current Session</p>

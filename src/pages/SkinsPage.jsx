@@ -37,6 +37,15 @@ const skinList = [
     accent: '#45483e',
     tall: true,
   },
+  {
+    id: SKINS.VINTAGE_LATTE,
+    name: 'Vintage Latte',
+    desc: 'Retro warm café tone',
+    bg: '#ded0b6',
+    digitColor: '#2c1f0e',
+    accent: '#8b4513',
+    tall: false,
+  },
 ]
 
 function MiniFlipCard({ bg, digitColor, digit }) {

@@ -37,10 +37,6 @@ export default function PomodoroPage() {
           </div>
         </div>
         <div className="mt-12 text-center">
-          <p className="font-['Space_Grotesk'] uppercase tracking-[0.2em] text-xs mb-2"
-             style={{ color: 'var(--text-secondary)' }}>
-            {isFinished ? '🍅 完成！' : 'Pomodoro Session'}
-          </p>
           <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
               style={{ color: 'var(--text-primary)' }}>
             {isFinished ? '休息一下吧' : isRunning ? 'Deep Work Phase' : '准备开始'}
