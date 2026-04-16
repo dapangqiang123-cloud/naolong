@@ -29,10 +29,6 @@ export default function PageHeader({ currentTab }) {
     { label: '快眠',   view: VIEWS.SLEEP_SETUP },
   ]
 
-  const overlayStyle = {
-    position: 'fixed', inset: 0, zIndex: 100,
-  }
-
   const dropdownStyle = {
     position: 'absolute',
     background: 'var(--bg-card)',
@@ -52,6 +48,9 @@ export default function PageHeader({ currentTab }) {
     fontFamily: "'Space Grotesk', sans-serif",
     fontSize: '14px', fontWeight: 500,
     cursor: 'pointer', textAlign: 'left',
+    boxSizing: 'border-box',
+    WebkitTapHighlightColor: 'transparent',
+    touchAction: 'manipulation',
   }
 
   return (
@@ -62,10 +61,9 @@ export default function PageHeader({ currentTab }) {
       background: 'var(--bg-primary)',
     }}>
 
-      {/* 点击遮罩关闭菜单 */}
       {(menuOpen || moreOpen) && (
         <div
-          style={overlayStyle}
+          style={{ position: 'fixed', inset: 0, zIndex: 100 }}
           onClick={() => { setMenuOpen(false); setMoreOpen(false) }}
         />
       )}
@@ -74,15 +72,18 @@ export default function PageHeader({ currentTab }) {
       <div style={{ position: 'relative', zIndex: 201 }}>
         <button
           onClick={() => { setMenuOpen(v => !v); setMoreOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation' }}
         >
-          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>menu</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px', pointerEvents: 'none' }}>menu</span>
         </button>
         {menuOpen && (
           <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
-            <button style={itemStyle} onClick={() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
-              皮肤中心
+            <button
+              style={itemStyle}
+              onClick={() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
+            >
+              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px', pointerEvents: 'none' }}>palette</span>
+              <span style={{ pointerEvents: 'none' }}>皮肤中心</span>
             </button>
           </div>
         )}
@@ -100,6 +101,8 @@ export default function PageHeader({ currentTab }) {
               fontFamily: "'Space Grotesk', sans-serif",
               fontWeight: 700, fontSize: '14px',
               cursor: 'pointer', padding: '0 0 4px 0',
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent',
             }}>
             {label}
           </button>
@@ -110,20 +113,15 @@ export default function PageHeader({ currentTab }) {
       <div style={{ position: 'relative', zIndex: 201 }}>
         <button
           onClick={() => { setMoreOpen(v => !v); setMenuOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation' }}
         >
-          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>more_vert</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px', pointerEvents: 'none' }}>more_vert</span>
         </button>
         {moreOpen && (
           <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
             <button style={itemStyle} onClick={copyLink}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>link</span>
-              {copied ? '已复制 ✓' : '复制链接'}
-            </button>
-            <div style={{ height: '1px', background: 'var(--border)' }} />
-            <button style={itemStyle} onClick={() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
-              生成海报
+              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px', pointerEvents: 'none' }}>link</span>
+              <span style={{ pointerEvents: 'none' }}>{copied ? '已复制 ✓' : '复制链接'}</span>
             </button>
           </div>
         )}
