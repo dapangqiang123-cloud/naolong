@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useApp, VIEWS } from '../../context/AppContext'
 
 export default function PageHeader({ currentTab }) {
@@ -6,56 +6,21 @@ export default function PageHeader({ currentTab }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [copied, setCopied] = useState(false)
-  const menuRef = useRef(null)
-  const moreRef = useRef(null)
 
-  useEffect(() => {
-    const handler = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false)
-      }
-      if (moreRef.current && !moreRef.current.contains(e.target)) {
-        setMoreOpen(false)
-      }
-    }
-    document.addEventListener('click', handler, true)
-    return () => {
-      document.removeEventListener('click', handler, true)
-    }
-  }, [])
-
-  const handleCopyLink = (e) => {
-    console.log('handleCopyLink called')
-    e?.stopPropagation()
-    setMoreOpen(false)
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    }).catch(() => {
-      // fallback for older browsers
+  const copyLink = () => {
+    try {
+      navigator.clipboard.writeText(window.location.href)
+    } catch {
       const el = document.createElement('input')
       el.value = window.location.href
       document.body.appendChild(el)
       el.select()
       document.execCommand('copy')
       document.body.removeChild(el)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    })
-  }
-
-  const handleSkinCenter = (e) => {
-    console.log('handleSkinCenter called')
-    e?.stopPropagation()
-    setMenuOpen(false)
-    setCurrentView(VIEWS.SKINS)
-  }
-
-  const handlePoster = (e) => {
-    console.log('handlePoster called')
-    e?.stopPropagation()
+    }
+    setCopied(true)
     setMoreOpen(false)
-    alert('海报生成功能开发中 🎨')
+    setTimeout(() => setCopied(false), 1500)
   }
 
   const tabs = [
@@ -64,13 +29,17 @@ export default function PageHeader({ currentTab }) {
     { label: '快眠',   view: VIEWS.SLEEP_SETUP },
   ]
 
+  const overlayStyle = {
+    position: 'fixed', inset: 0, zIndex: 100,
+  }
+
   const dropdownStyle = {
     position: 'absolute',
     background: 'var(--bg-card)',
     border: '1px solid var(--border)',
     borderRadius: '12px',
     boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-    zIndex: 9999,
+    zIndex: 200,
     minWidth: '160px',
     overflow: 'hidden',
   }
@@ -83,9 +52,6 @@ export default function PageHeader({ currentTab }) {
     fontFamily: "'Space Grotesk', sans-serif",
     fontSize: '14px', fontWeight: 500,
     cursor: 'pointer', textAlign: 'left',
-    pointerEvents: 'auto',
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
   }
 
   return (
@@ -96,35 +62,28 @@ export default function PageHeader({ currentTab }) {
       background: 'var(--bg-primary)',
     }}>
 
+      {/* 点击遮罩关闭菜单 */}
+      {(menuOpen || moreOpen) && (
+        <div
+          style={overlayStyle}
+          onClick={() => { setMenuOpen(false); setMoreOpen(false) }}
+        />
+      )}
+
       {/* 左：三条杠 */}
-      <div ref={menuRef} style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', zIndex: 201 }}>
         <button
-          onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); setMoreOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+          onClick={() => { setMenuOpen(v => !v); setMoreOpen(false) }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}
         >
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>menu</span>
         </button>
         {menuOpen && (
           <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
-            <div
-              style={{...itemStyle, transition: 'background 0.2s'}}
-              onClick={(e) => {
-                console.log('Menu item clicked!')
-                e.stopPropagation()
-                handleSkinCenter(e)
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-              onTouchEnd={(e) => {
-                console.log('Menu item touched!')
-                e.preventDefault()
-                e.stopPropagation()
-                handleSkinCenter(e)
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px', pointerEvents: 'none' }}>palette</span>
-              <span style={{ pointerEvents: 'none' }}>皮肤中心</span>
-            </div>
+            <button style={itemStyle} onClick={() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
+              皮肤中心
+            </button>
           </div>
         )}
       </div>
@@ -133,7 +92,7 @@ export default function PageHeader({ currentTab }) {
       <nav style={{ display: 'flex', gap: '32px' }}>
         {tabs.map(({ label, view }) => (
           <button key={view}
-            onClick={(e) => { e.stopPropagation(); setCurrentView(view) }}
+            onClick={() => setCurrentView(view)}
             style={{
               background: 'none', border: 'none',
               borderBottom: currentTab === view ? '2px solid var(--accent)' : '2px solid transparent',
@@ -141,9 +100,6 @@ export default function PageHeader({ currentTab }) {
               fontFamily: "'Space Grotesk', sans-serif",
               fontWeight: 700, fontSize: '14px',
               cursor: 'pointer', padding: '0 0 4px 0',
-              letterSpacing: '-0.02em',
-              touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent',
             }}>
             {label}
           </button>
@@ -151,54 +107,24 @@ export default function PageHeader({ currentTab }) {
       </nav>
 
       {/* 右：三个点 */}
-      <div ref={moreRef} style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', zIndex: 201 }}>
         <button
-          onClick={(e) => { e.stopPropagation(); setMoreOpen(v => !v); setMenuOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+          onClick={() => { setMoreOpen(v => !v); setMenuOpen(false) }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}
         >
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>more_vert</span>
         </button>
         {moreOpen && (
           <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
-            <div
-              style={{...itemStyle, transition: 'background 0.2s'}}
-              onClick={(e) => {
-                console.log('Copy link clicked!')
-                e.stopPropagation()
-                handleCopyLink(e)
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-              onTouchEnd={(e) => {
-                console.log('Copy link touched!')
-                e.preventDefault()
-                e.stopPropagation()
-                handleCopyLink(e)
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px', pointerEvents: 'none' }}>link</span>
-              <span style={{ pointerEvents: 'none' }}>{copied ? '已复制 ✓' : '复制链接'}</span>
-            </div>
+            <button style={itemStyle} onClick={copyLink}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>link</span>
+              {copied ? '已复制 ✓' : '复制链接'}
+            </button>
             <div style={{ height: '1px', background: 'var(--border)' }} />
-            <div
-              style={{...itemStyle, transition: 'background 0.2s'}}
-              onClick={(e) => {
-                console.log('Poster clicked!')
-                e.stopPropagation()
-                handlePoster(e)
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-              onTouchEnd={(e) => {
-                console.log('Poster touched!')
-                e.preventDefault()
-                e.stopPropagation()
-                handlePoster(e)
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px', pointerEvents: 'none' }}>image</span>
-              <span style={{ pointerEvents: 'none' }}>生成海报</span>
-            </div>
+            <button style={itemStyle} onClick={() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
+              生成海报
+            </button>
           </div>
         )}
       </div>
