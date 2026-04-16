@@ -16,7 +16,7 @@ export default function FlipClockPage() {
         <div className="absolute top-12 left-0 right-0 flex justify-center opacity-10 pointer-events-none select-none">
           <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">FOCUS</p>
         </div>
-        <div className="flex items-center gap-3 w-full justify-center px-6">
+        <div className="flex items-center gap-3 justify-center" style={{ padding: '0 24px', width: '100%', boxSizing: 'border-box' }}>
           <div className="flex gap-2">
             <FlipDigit value={h0} />
             <FlipDigit value={h1} />

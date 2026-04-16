@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function FlipDigit({ value, className = 'w-[22vw] h-[33vw] max-w-[120px] max-h-[180px]', digitClass = 'text-[11vw] max-text-7xl' }) {
+export default function FlipDigit({ value, className = 'w-[20vw] h-[30vw] max-w-[100px] max-h-[150px]', digitClass = 'text-[11vw] max-text-7xl' }) {
   const [current, setCurrent] = useState(value)
   const [prev, setPrev] = useState(value)
   const [flipping, setFlipping] = useState(false)

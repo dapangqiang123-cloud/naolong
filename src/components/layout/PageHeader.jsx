@@ -14,12 +14,23 @@ export default function PageHeader({ currentTab }) {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
       if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
     }
-    document.addEventListener('pointerdown', handler)
-    return () => document.removeEventListener('pointerdown', handler)
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
   }, [])
 
-  const handleCopyLink = () => {
+  const handleCopyLink = (e) => {
+    e.stopPropagation()
     navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true)
+      setTimeout(() => { setCopied(false); setMoreOpen(false) }, 1500)
+    }).catch(() => {
+      // fallback for older browsers
+      const el = document.createElement('input')
+      el.value = window.location.href
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
       setCopied(true)
       setTimeout(() => { setCopied(false); setMoreOpen(false) }, 1500)
     })
@@ -51,6 +62,7 @@ export default function PageHeader({ currentTab }) {
     fontSize: '14px', fontWeight: 500,
     cursor: 'pointer', textAlign: 'left',
     WebkitTapHighlightColor: 'transparent',
+    touchAction: 'manipulation',
   }
 
   return (
@@ -64,8 +76,8 @@ export default function PageHeader({ currentTab }) {
       {/* 左：三条杠 */}
       <div ref={menuRef} style={{ position: 'relative' }}>
         <button
-          onPointerUp={() => { setMenuOpen(v => !v); setMoreOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation' }}
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); setMoreOpen(false) }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         >
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>menu</span>
         </button>
@@ -73,7 +85,7 @@ export default function PageHeader({ currentTab }) {
           <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
             <button
               style={itemStyle}
-              onPointerUp={() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
+              onClick={(e) => { e.stopPropagation(); setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
               皮肤中心
@@ -86,7 +98,7 @@ export default function PageHeader({ currentTab }) {
       <nav style={{ display: 'flex', gap: '32px' }}>
         {tabs.map(({ label, view }) => (
           <button key={view}
-            onPointerUp={() => setCurrentView(view)}
+            onClick={(e) => { e.stopPropagation(); setCurrentView(view) }}
             style={{
               background: 'none', border: 'none',
               borderBottom: currentTab === view ? '2px solid var(--accent)' : '2px solid transparent',
@@ -106,19 +118,19 @@ export default function PageHeader({ currentTab }) {
       {/* 右：三个点 */}
       <div ref={moreRef} style={{ position: 'relative' }}>
         <button
-          onPointerUp={() => { setMoreOpen(v => !v); setMenuOpen(false) }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation' }}
+          onClick={(e) => { e.stopPropagation(); setMoreOpen(v => !v); setMenuOpen(false) }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         >
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>more_vert</span>
         </button>
         {moreOpen && (
           <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
-            <button style={itemStyle} onPointerUp={handleCopyLink}>
+            <button style={itemStyle} onClick={handleCopyLink}>
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>link</span>
               {copied ? '已复制 ✓' : '复制链接'}
             </button>
             <div style={{ height: '1px', background: 'var(--border)' }} />
-            <button style={itemStyle} onPointerUp={() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) }}>
+            <button style={itemStyle} onClick={(e) => { e.stopPropagation(); alert('海报生成功能开发中 🎨'); setMoreOpen(false) }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
               生成海报
             </button>
