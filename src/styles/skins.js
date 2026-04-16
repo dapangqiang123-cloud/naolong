@@ -1,0 +1,61 @@
+// src/styles/skins.js
+
+export const skins = {
+  default: {
+    name: '默认',
+    '--bg-primary': '#0f0f0f',
+    '--bg-secondary': '#1a1a1a',
+    '--bg-card': '#1e1e1e',
+    '--text-primary': '#ffffff',
+    '--text-secondary': '#999999',
+    '--accent': '#f5a623',
+    '--accent-soft': 'rgba(245,166,35,0.15)',
+    '--border': 'rgba(255,255,255,0.08)',
+  },
+  ocean: {
+    name: '深海',
+    '--bg-primary': '#071428',
+    '--bg-secondary': '#0d1f3c',
+    '--bg-card': '#102244',
+    '--text-primary': '#e8f4ff',
+    '--text-secondary': '#7aaed4',
+    '--accent': '#38bdf8',
+    '--accent-soft': 'rgba(56,189,248,0.15)',
+    '--border': 'rgba(56,189,248,0.12)',
+  },
+  sakura: {
+    name: '樱粉',
+    '--bg-primary': '#1a0d11',
+    '--bg-secondary': '#261219',
+    '--bg-card': '#2e1520',
+    '--text-primary': '#ffe8ee',
+    '--text-secondary': '#d4909a',
+    '--accent': '#f472b6',
+    '--accent-soft': 'rgba(244,114,182,0.15)',
+    '--border': 'rgba(244,114,182,0.12)',
+  },
+  forest: {
+    name: '暗林',
+    '--bg-primary': '#0a130d',
+    '--bg-secondary': '#111f14',
+    '--bg-card': '#162419',
+    '--text-primary': '#e8f5ea',
+    '--text-secondary': '#7aad84',
+    '--accent': '#4ade80',
+    '--accent-soft': 'rgba(74,222,128,0.15)',
+    '--border': 'rgba(74,222,128,0.12)',
+  },
+  polar: {
+    name: '极光',
+    '--bg-primary': '#f5f5f7',
+    '--bg-secondary': '#ffffff',
+    '--bg-card': '#ffffff',
+    '--text-primary': '#1d1d1f',
+    '--text-secondary': '#6e6e73',
+    '--accent': '#7c3aed',
+    '--accent-soft': 'rgba(124,58,237,0.10)',
+    '--border': 'rgba(0,0,0,0.08)',
+  },
+}
+
+export const skinIds = Object.keys(skins)

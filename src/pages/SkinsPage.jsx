@@ -53,30 +53,33 @@ function MiniFlipCard({ bg, digitColor, digit }) {
 }
 
 export default function SkinsPage() {
-  const { currentSkin, setCurrentSkin, setCurrentView } = useApp()
+  // ✅ 改这里：setCurrentSkin → changeSkin
+  const { currentSkin, changeSkin, setCurrentView } = useApp()
 
   return (
-    <div className="relative min-h-screen bg-[#131313] text-[#e2e2e2] font-['Manrope']">
+    <div className="relative min-h-screen font-['Manrope']"
+         style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
       {/* 顶部导航 */}
-      <nav className="bg-[#131313] flex justify-between items-center px-6 h-16 w-full sticky top-0 z-50">
+      <nav className="flex justify-between items-center px-6 h-16 w-full sticky top-0 z-50"
+           style={{ background: 'var(--bg-primary)' }}>
         <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-[#bdcd9a] cursor-pointer">menu</span>
-          <h1 className="font-['Space_Grotesk'] font-bold tracking-tight text-white text-xl">皮肤中心</h1>
+          <span className="material-symbols-outlined cursor-pointer" style={{ color: 'var(--accent)' }}>menu</span>
+          <h1 className="font-['Space_Grotesk'] font-bold tracking-tight text-xl"
+              style={{ color: 'var(--text-primary)' }}>皮肤中心</h1>
         </div>
-        <div className="flex items-center gap-6">
-          <button
-            onClick={() => setCurrentView(VIEWS.CLOCK)}
-            className="text-[#bdcd9a] font-['Space_Grotesk'] font-medium hover:text-white transition-colors">
-            完成
-          </button>
-        </div>
+        <button
+          onClick={() => setCurrentView(VIEWS.CLOCK)}
+          className="font-['Space_Grotesk'] font-medium transition-colors"
+          style={{ color: 'var(--accent)' }}>
+          完成
+        </button>
       </nav>
 
-      {/* 编辑标题 */}
       <main className="max-w-2xl mx-auto px-6 pt-8 pb-32">
         <header className="mb-12">
-          <p className="text-[#c6c8ba] uppercase tracking-widest text-[10px] mb-2 font-['Space_Grotesk']">Gallery</p>
+          <p className="uppercase tracking-widest text-[10px] mb-2 font-['Space_Grotesk']"
+             style={{ color: 'var(--text-secondary)' }}>Gallery</p>
           <h2 className="font-['Space_Grotesk'] text-4xl font-bold tracking-tighter leading-none">NAOLONG.</h2>
         </header>
 
@@ -87,19 +90,21 @@ export default function SkinsPage() {
             return (
               <div
                 key={skin.id}
-                onClick={() => setCurrentSkin(skin.id)}
+                // ✅ 改这里：setCurrentSkin → changeSkin
+                onClick={() => changeSkin(skin.id)}
                 className={`group cursor-pointer ${i % 2 === 1 ? 'mt-10' : ''}`}
               >
-                <div className={`
-                  p-6 rounded-xl flex flex-col items-center justify-center transition-all relative overflow-hidden
-                  ${skin.tall ? 'min-h-[320px]' : 'min-h-[260px]'}
-                  ${isActive
-                    ? 'bg-[#2a2a2a] ring-2 ring-[#bdcd9a]/60'
-                    : 'bg-[#1b1b1b] hover:bg-[#2a2a2a]'}
-                `}>
+                <div
+                  className={`p-6 rounded-xl flex flex-col items-center justify-center transition-all relative overflow-hidden ${skin.tall ? 'min-h-[320px]' : 'min-h-[260px]'}`}
+                  style={{
+                    background: isActive ? 'var(--bg-card)' : 'var(--bg-secondary)',
+                    boxShadow: isActive ? `0 0 0 2px var(--accent)` : 'none',
+                  }}
+                >
                   {/* Active 徽章 */}
                   {isActive && (
-                    <div className="absolute top-3 right-3 bg-[#bdcd9a] text-[#222d0a] text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">
+                    <div className="absolute top-3 right-3 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter"
+                         style={{ background: 'var(--accent)', color: 'var(--bg-primary)' }}>
                       Active
                     </div>
                   )}
@@ -112,8 +117,9 @@ export default function SkinsPage() {
 
                   {/* 名称 */}
                   <div className="mt-6 text-center">
-                    <h3 className="font-['Space_Grotesk'] text-base font-bold mb-1">{skin.name}</h3>
-                    <p className="text-[#c6c8ba] text-xs">{skin.desc}</p>
+                    <h3 className="font-['Space_Grotesk'] text-base font-bold mb-1"
+                        style={{ color: 'var(--text-primary)' }}>{skin.name}</h3>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{skin.desc}</p>
                   </div>
                 </div>
               </div>
