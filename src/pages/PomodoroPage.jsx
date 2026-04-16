@@ -15,7 +15,7 @@ export default function PomodoroPage() {
       </div>
       <PageHeader currentTab={VIEWS.POMODORO} />
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
-        <div className="absolute top-12 left-12 opacity-10 pointer-events-none select-none">
+        <div className="absolute top-12 left-0 right-0 flex justify-center opacity-10 pointer-events-none select-none">
           <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">
             {isRunning ? 'FOCUS' : isFinished ? 'DONE' : 'READY'}
           </p>

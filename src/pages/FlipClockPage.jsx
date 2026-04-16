@@ -13,11 +13,10 @@ export default function FlipClockPage() {
       </div>
       <PageHeader currentTab={VIEWS.CLOCK} />
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
-        <div className="absolute top-12 left-12 opacity-10 pointer-events-none select-none">
+        <div className="absolute top-12 left-0 right-0 flex justify-center opacity-10 pointer-events-none select-none">
           <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">FOCUS</p>
         </div>
-
-        <div className="flex items-center gap-3 w-full justify-center">
+        <div className="flex items-center gap-3 w-full justify-center px-6">
           <div className="flex gap-2">
             <FlipDigit value={h0} />
             <FlipDigit value={h1} />
@@ -31,7 +30,6 @@ export default function FlipClockPage() {
             <FlipDigit value={m1} />
           </div>
         </div>
-
         <div className="mt-6 flex items-center gap-3">
           <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em] transition-colors"
                 style={{ color: ampm === 'AM' ? 'var(--accent)' : 'var(--border)' }}>AM</span>
@@ -39,7 +37,6 @@ export default function FlipClockPage() {
           <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em] transition-colors"
                 style={{ color: ampm === 'PM' ? 'var(--accent)' : 'var(--border)' }}>PM</span>
         </div>
-
         <div className="mt-12 text-center">
           <p className="font-['Space_Grotesk'] uppercase tracking-[0.2em] text-xs mb-2"
              style={{ color: 'var(--text-secondary)' }}>Current Session</p>
