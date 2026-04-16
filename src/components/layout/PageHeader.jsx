@@ -14,8 +14,8 @@ export default function PageHeader({ currentTab }) {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
       if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
     }
-    document.addEventListener('click', handler)
-    return () => document.removeEventListener('click', handler)
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   const handleCopyLink = (e) => {
