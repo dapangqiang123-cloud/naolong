@@ -92,10 +92,10 @@ export default function SkinsPage() {
                 key={skin.id}
                 // ✅ 改这里：setCurrentSkin → changeSkin
                 onClick={() => changeSkin(skin.id)}
-                className={`group cursor-pointer ${i % 2 === 1 ? 'mt-10' : ''}`}
+                className={`group cursor-pointer ${i % 2 === 1 ? 'mt-10' : ''} overflow-visible`}
               >
                 <div
-                  className={`p-6 rounded-xl flex flex-col items-center justify-center transition-all relative overflow-hidden ${skin.tall ? 'min-h-[320px]' : 'min-h-[260px]'}`}
+                  className={`p-6 rounded-xl flex flex-col items-center justify-center transition-all relative overflow-visible ...`}
                   style={{
                     background: isActive ? 'var(--bg-card)' : 'var(--bg-secondary)',
                     boxShadow: isActive ? `0 0 0 2px var(--accent)` : 'none',
