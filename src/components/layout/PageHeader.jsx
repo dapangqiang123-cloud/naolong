@@ -11,23 +11,20 @@ export default function PageHeader({ currentTab }) {
 
   useEffect(() => {
     const handler = (e) => {
-      // 给按钮点击一点时间执行
-      setTimeout(() => {
-        if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
-        if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
-      }, 0)
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+      if (moreRef.current && !moreRef.current.contains(e.target)) {
+        setMoreOpen(false)
+      }
     }
-    document.addEventListener('mousedown', handler)
-    document.addEventListener('touchend', handler)
+    document.addEventListener('click', handler, true)
     return () => {
-      document.removeEventListener('mousedown', handler)
-      document.removeEventListener('touchend', handler)
+      document.removeEventListener('click', handler, true)
     }
   }, [])
 
-  const handleCopyLink = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleCopyLink = () => {
     setMoreOpen(false)
     navigator.clipboard.writeText(window.location.href).then(() => {
       setCopied(true)
@@ -45,10 +42,14 @@ export default function PageHeader({ currentTab }) {
     })
   }
 
-  const handleMenuItemClick = (callback) => (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    callback()
+  const handleSkinCenter = () => {
+    setMenuOpen(false)
+    setCurrentView(VIEWS.SKINS)
+  }
+
+  const handlePoster = () => {
+    setMoreOpen(false)
+    alert('海报生成功能开发中 🎨')
   }
 
   const tabs = [
@@ -97,15 +98,11 @@ export default function PageHeader({ currentTab }) {
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>menu</span>
         </button>
         {menuOpen && (
-          <div
-            style={{ ...dropdownStyle, top: '48px', left: 0 }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
-          >
+          <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
             <button
               style={itemStyle}
-              onTouchEnd={handleMenuItemClick(() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) })}
-              onClick={handleMenuItemClick(() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) })}
+              onMouseDown={(e) => { e.preventDefault(); handleSkinCenter() }}
+              onTouchStart={(e) => { e.preventDefault(); handleSkinCenter() }}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
               皮肤中心
@@ -144,15 +141,11 @@ export default function PageHeader({ currentTab }) {
           <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '24px' }}>more_vert</span>
         </button>
         {moreOpen && (
-          <div
-            style={{ ...dropdownStyle, top: '48px', right: 0 }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
-          >
+          <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
             <button
               style={itemStyle}
-              onTouchEnd={handleCopyLink}
-              onClick={handleCopyLink}
+              onMouseDown={(e) => { e.preventDefault(); handleCopyLink() }}
+              onTouchStart={(e) => { e.preventDefault(); handleCopyLink() }}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>link</span>
               {copied ? '已复制 ✓' : '复制链接'}
@@ -160,8 +153,8 @@ export default function PageHeader({ currentTab }) {
             <div style={{ height: '1px', background: 'var(--border)' }} />
             <button
               style={itemStyle}
-              onTouchEnd={handleMenuItemClick(() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) })}
-              onClick={handleMenuItemClick(() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) })}
+              onMouseDown={(e) => { e.preventDefault(); handlePoster() }}
+              onTouchStart={(e) => { e.preventDefault(); handlePoster() }}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
               生成海报
