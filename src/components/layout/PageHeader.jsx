@@ -15,19 +15,20 @@ export default function PageHeader({ currentTab }) {
       if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
     }
     document.addEventListener('mousedown', handler)
-    document.addEventListener('touchstart', handler)
+    document.addEventListener('touchend', handler)
     return () => {
       document.removeEventListener('mousedown', handler)
-      document.removeEventListener('touchstart', handler)
+      document.removeEventListener('touchend', handler)
     }
   }, [])
 
   const handleCopyLink = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    setMoreOpen(false)
     navigator.clipboard.writeText(window.location.href).then(() => {
       setCopied(true)
-      setTimeout(() => { setCopied(false); setMoreOpen(false) }, 1500)
+      setTimeout(() => setCopied(false), 1500)
     }).catch(() => {
       // fallback for older browsers
       const el = document.createElement('input')
@@ -37,8 +38,14 @@ export default function PageHeader({ currentTab }) {
       document.execCommand('copy')
       document.body.removeChild(el)
       setCopied(true)
-      setTimeout(() => { setCopied(false); setMoreOpen(false) }, 1500)
+      setTimeout(() => setCopied(false), 1500)
     })
+  }
+
+  const handleMenuItemClick = (callback) => (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    callback()
   }
 
   const tabs = [
@@ -90,7 +97,8 @@ export default function PageHeader({ currentTab }) {
           <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
             <button
               style={itemStyle}
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
+              onTouchStart={handleMenuItemClick(() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) })}
+              onClick={handleMenuItemClick(() => { setCurrentView(VIEWS.SKINS); setMenuOpen(false) })}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
               皮肤中心
@@ -130,12 +138,20 @@ export default function PageHeader({ currentTab }) {
         </button>
         {moreOpen && (
           <div style={{ ...dropdownStyle, top: '48px', right: 0 }}>
-            <button style={itemStyle} onClick={handleCopyLink}>
+            <button
+              style={itemStyle}
+              onTouchStart={handleCopyLink}
+              onClick={handleCopyLink}
+            >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>link</span>
               {copied ? '已复制 ✓' : '复制链接'}
             </button>
             <div style={{ height: '1px', background: 'var(--border)' }} />
-            <button style={itemStyle} onClick={(e) => { e.preventDefault(); e.stopPropagation(); alert('海报生成功能开发中 🎨'); setMoreOpen(false) }}>
+            <button
+              style={itemStyle}
+              onTouchStart={handleMenuItemClick(() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) })}
+              onClick={handleMenuItemClick(() => { alert('海报生成功能开发中 🎨'); setMoreOpen(false) })}
+            >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
               生成海报
             </button>
