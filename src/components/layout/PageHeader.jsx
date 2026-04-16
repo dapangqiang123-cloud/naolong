@@ -15,10 +15,15 @@ export default function PageHeader({ currentTab }) {
       if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
     }
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
   }, [])
 
   const handleCopyLink = (e) => {
+    e.preventDefault()
     e.stopPropagation()
     navigator.clipboard.writeText(window.location.href).then(() => {
       setCopied(true)
@@ -85,7 +90,7 @@ export default function PageHeader({ currentTab }) {
           <div style={{ ...dropdownStyle, top: '48px', left: 0 }}>
             <button
               style={itemStyle}
-              onClick={(e) => { e.stopPropagation(); alert('点击了'); setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCurrentView(VIEWS.SKINS); setMenuOpen(false) }}
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>palette</span>
               皮肤中心
@@ -130,7 +135,7 @@ export default function PageHeader({ currentTab }) {
               {copied ? '已复制 ✓' : '复制链接'}
             </button>
             <div style={{ height: '1px', background: 'var(--border)' }} />
-            <button style={itemStyle} onClick={(e) => { e.stopPropagation(); alert('海报生成功能开发中 🎨'); setMoreOpen(false) }}>
+            <button style={itemStyle} onClick={(e) => { e.preventDefault(); e.stopPropagation(); alert('海报生成功能开发中 🎨'); setMoreOpen(false) }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--accent)', fontSize: '20px' }}>image</span>
               生成海报
             </button>
