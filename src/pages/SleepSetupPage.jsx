@@ -1,58 +1,34 @@
 import { useState, useEffect, useRef } from 'react'
 import { useApp, VIEWS } from '../context/AppContext'
 
-// 白噪音生成器
-function createWhiteNoise(audioCtx, volume = 0.15) {
-  const bufferSize = audioCtx.sampleRate * 2
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
-  const data = buffer.getChannelData(0)
-  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
+// 音效配置
+const SLEEP_SOUNDS = [
+  { id: 'rain1', file: '/sounds/sleep/rain1.mp3', label: '春雨', icon: 'water_drop' },
+  { id: 'rain2', file: '/sounds/sleep/rain2.mp3', label: '春雷', icon: 'thunderstorm' },
+  { id: 'rain3', file: '/sounds/sleep/rain3.mp3', label: '暴雨', icon: 'cloudy_snowing' },
+  { id: 'cafe', file: '/sounds/sleep/cafe.mp3', label: '咖啡厅', icon: 'local_cafe' },
+  { id: 'fireplace', file: '/sounds/sleep/fireplace.mp3', label: '篝火', icon: 'local_fire_department' },
+  { id: 'forest', file: '/sounds/sleep/forest.mp3', label: '森林', icon: 'forest' },
+  { id: 'thunderstorm1', file: '/sounds/sleep/thunderstorm1.mp3', label: '雷暴', icon: 'bolt' },
+]
 
-  const source = audioCtx.createBufferSource()
-  source.buffer = buffer
-  source.loop = true
-
-  const gain = audioCtx.createGain()
-  gain.gain.value = volume
-
-  source.connect(gain)
-  gain.connect(audioCtx.destination)
-  return { source, gain }
-}
-
-// 雨声生成器（用滤波白噪音模拟）
-function createRainNoise(audioCtx, volume = 0.2) {
-  const bufferSize = audioCtx.sampleRate * 2
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
-  const data = buffer.getChannelData(0)
-  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
-
-  const source = audioCtx.createBufferSource()
-  source.buffer = buffer
-  source.loop = true
-
-  const filter = audioCtx.createBiquadFilter()
-  filter.type = 'bandpass'
-  filter.frequency.value = 800
-  filter.Q.value = 0.5
-
-  const gain = audioCtx.createGain()
-  gain.gain.value = volume
-
-  source.connect(filter)
-  filter.connect(gain)
-  gain.connect(audioCtx.destination)
-  return { source, gain }
-}
+const WAKE_SOUNDS = [
+  { id: 'rainmusic1', file: '/sounds/wake/rainmusic1.mp3', label: '晨璞', icon: 'wb_sunny' },
+  { id: 'rainmusic2', file: '/sounds/wake/rainmusic2.mp3', label: '溪悦', icon: 'water' },
+  { id: 'slowmusic', file: '/sounds/wake/slowmusic.mp3', label: '晴雨', icon: 'music_note' },
+]
 
 export default function SleepSetupPage() {
   const { setCurrentView, setWakeUpTime } = useApp()
   const [wakeTime, setWakeTime] = useState('07:00')
   const [sleepDuration, setSleepDuration] = useState('')
-  const [activeSound, setActiveSound] = useState(null) // 'rain' | 'wind' | null
+  const [activeTab, setActiveTab] = useState('sleep') // 'sleep' | 'wake'
 
-  const audioCtxRef = useRef(null)
-  const soundRef = useRef(null)
+  // 每个音效独立音量和播放状态
+  // { [id]: { audio, volume, playing } }
+  const soundsRef = useRef({})
+  const [playingMap, setPlayingMap] = useState({}) // { [id]: true/false }
+  const [volumeMap, setVolumeMap] = useState({})   // { [id]: 0~1 }
 
   useEffect(() => {
     const [h, m] = wakeTime.split(':').map(Number)
@@ -66,56 +42,57 @@ export default function SleepSetupPage() {
     setSleepDuration(`${hours} 小时 ${mins} 分钟`)
   }, [wakeTime])
 
-  // 组件卸载时停止音效
+  // 卸载时停所有
   useEffect(() => {
-    return () => stopSound()
+    return () => stopAll()
   }, [])
 
-  const stopSound = () => {
-    if (soundRef.current) {
-      try { soundRef.current.source.stop() } catch {}
-      soundRef.current = null
+  const stopAll = () => {
+    Object.values(soundsRef.current).forEach(({ audio }) => {
+      audio.pause()
+      audio.currentTime = 0
+    })
+    soundsRef.current = {}
+    setPlayingMap({})
+  }
+
+  const getOrCreateAudio = (sound) => {
+    if (!soundsRef.current[sound.id]) {
+      const audio = new Audio(sound.file)
+      audio.loop = true
+      audio.volume = volumeMap[sound.id] ?? 0.6
+      soundsRef.current[sound.id] = { audio }
     }
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close()
-      audioCtxRef.current = null
+    return soundsRef.current[sound.id].audio
+  }
+
+  const toggleSound = (sound) => {
+    const audio = getOrCreateAudio(sound)
+    if (playingMap[sound.id]) {
+      audio.pause()
+      setPlayingMap(prev => ({ ...prev, [sound.id]: false }))
+    } else {
+      audio.play()
+      setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
     }
   }
 
-  const toggleSound = (type) => {
-    // 点同一个 → 关闭
-    if (activeSound === type) {
-      stopSound()
-      setActiveSound(null)
-      return
+  const setVolume = (sound, value) => {
+    const vol = parseFloat(value)
+    setVolumeMap(prev => ({ ...prev, [sound.id]: vol }))
+    if (soundsRef.current[sound.id]) {
+      soundsRef.current[sound.id].audio.volume = vol
     }
-
-    // 切换到另一个 → 先停再开
-    stopSound()
-
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    audioCtxRef.current = ctx
-
-    const { source, gain } = type === 'rain'
-      ? createRainNoise(ctx)
-      : createWhiteNoise(ctx)
-
-    source.start()
-    soundRef.current = { source, gain }
-    setActiveSound(type)
   }
 
   const handleStart = () => {
-    stopSound()
+    stopAll()
     const [h, m] = wakeTime.split(':').map(Number)
     setWakeUpTime({ hour: h, minute: m })
     setCurrentView(VIEWS.SLEEP_ACTIVE)
   }
 
-  const sounds = [
-    { id: 'rain', icon: 'water_drop', label: '环境音', value: '雨声' },
-    { id: 'wind', icon: 'air', label: '白噪音', value: '微风' },
-  ]
+  const currentSounds = activeTab === 'sleep' ? SLEEP_SOUNDS : WAKE_SOUNDS
 
   return (
     <div className="relative min-h-screen flex flex-col"
@@ -128,89 +105,107 @@ export default function SleepSetupPage() {
 
       <header className="relative z-10 flex justify-between items-center px-8 h-24">
         <h1 className="font-['Space_Grotesk'] font-bold text-3xl tracking-tight">快眠向导</h1>
-        <button onClick={() => { stopSound(); setCurrentView(VIEWS.CLOCK) }}
+        <button onClick={() => { stopAll(); setCurrentView(VIEWS.CLOCK) }}
                 className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
                 style={{ background: 'var(--bg-secondary)' }}>
           <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>close</span>
         </button>
       </header>
 
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 pb-32">
-        <div className="w-full max-w-md rounded-2xl p-8"
-             style={{
-               background: 'var(--bg-card)',
-               border: '1px solid var(--border)',
-               boxShadow: '0 0 80px rgba(0,0,0,0.3)',
-             }}>
+      <main className="relative z-10 flex-1 flex flex-col items-center px-6 pb-32 pt-4">
+        <div className="w-full max-w-md space-y-4">
 
-          <div className="flex justify-between items-center mb-8">
+          {/* 时间卡片 */}
+          <div className="rounded-2xl p-6"
+               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 0 80px rgba(0,0,0,0.3)' }}>
             <span className="font-['Space_Grotesk'] text-xs tracking-[0.3em] font-medium uppercase"
                   style={{ color: 'var(--text-secondary)' }}>设定唤醒时间</span>
-          </div>
-
-          {/* 时间选择器 */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="font-['Manrope'] font-extralight text-[5rem] leading-none tracking-tighter mb-4"
-                 style={{ color: 'var(--text-primary)' }}>
-              {wakeTime}
+            <div className="flex flex-col items-center mt-4 mb-4">
+              <div className="font-['Manrope'] font-extralight text-[4.5rem] leading-none tracking-tighter mb-4"
+                   style={{ color: 'var(--text-primary)' }}>{wakeTime}</div>
+              <input type="time" value={wakeTime} onChange={(e) => setWakeTime(e.target.value)}
+                     style={{
+                       background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                       borderRadius: '12px', color: 'var(--text-primary)',
+                       fontFamily: "'Space Grotesk', sans-serif", fontSize: '16px',
+                       padding: '12px 20px', width: '100%', textAlign: 'center', outline: 'none', cursor: 'pointer',
+                     }} />
             </div>
-            <input
-              type="time"
-              value={wakeTime}
-              onChange={(e) => setWakeTime(e.target.value)}
-              style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                borderRadius: '12px',
-                color: 'var(--text-primary)',
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: '16px',
-                padding: '12px 20px',
-                width: '100%',
-                textAlign: 'center',
-                outline: 'none',
-                cursor: 'pointer',
-              }}
-            />
-          </div>
-
-          {/* 预计睡眠时长 */}
-          <div className="text-center mb-10">
-            <p className="font-['Manrope'] text-sm tracking-wide"
-               style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-center font-['Manrope'] text-sm" style={{ color: 'var(--text-secondary)' }}>
               预计睡眠：<span style={{ color: 'var(--text-primary)' }}>{sleepDuration}</span>
             </p>
           </div>
 
-          {/* 环境音卡片 */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            {sounds.map(item => {
-              const isActive = activeSound === item.id
-              return (
-                <div key={item.id}
-                     onClick={() => toggleSound(item.id)}
-                     className="rounded-xl p-4 flex flex-col gap-2 cursor-pointer transition-all active:scale-95"
-                     style={{
-                       background: isActive ? 'var(--accent-soft)' : 'var(--bg-secondary)',
-                       border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
-                       boxShadow: isActive ? '0 0 20px var(--accent-soft)' : 'none',
-                     }}>
-                  <div className="flex items-center justify-between">
-                    <span className="material-symbols-outlined text-lg" style={{ color: 'var(--accent)' }}>{item.icon}</span>
-                    {isActive && (
-                      <span className="material-symbols-outlined text-sm animate-pulse" style={{ color: 'var(--accent)' }}>volume_up</span>
+          {/* 音效卡片 */}
+          <div className="rounded-2xl p-6"
+               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+
+            {/* Tab 切换 */}
+            <div className="flex gap-2 mb-5 p-1 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
+              {[{ id: 'sleep', label: '助眠音效' }, { id: 'wake', label: '起床音乐' }].map(tab => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                        className="flex-1 py-2 rounded-lg text-xs font-medium tracking-wider transition-all"
+                        style={{
+                          background: activeTab === tab.id ? 'var(--accent)' : 'transparent',
+                          color: activeTab === tab.id ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                        }}>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 音效列表 */}
+            <div className="space-y-3">
+              {currentSounds.map(sound => {
+                const isPlaying = !!playingMap[sound.id]
+                const vol = volumeMap[sound.id] ?? 0.6
+                return (
+                  <div key={sound.id} className="rounded-xl p-4 transition-all"
+                       style={{
+                         background: isPlaying ? 'var(--accent-soft)' : 'var(--bg-secondary)',
+                         border: `1px solid ${isPlaying ? 'var(--accent)' : 'var(--border)'}`,
+                       }}>
+                    {/* 上行：图标 + 名称 + 播放按钮 */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-xl"
+                              style={{ color: 'var(--accent)', fontVariationSettings: "'FILL' 1" }}>
+                          {sound.icon}
+                        </span>
+                        <span className="font-['Space_Grotesk'] text-sm font-medium"
+                              style={{ color: 'var(--text-primary)' }}>{sound.label}</span>
+                      </div>
+                      <button onClick={() => toggleSound(sound)}
+                              className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+                              style={{
+                                background: isPlaying ? 'var(--accent)' : 'var(--border)',
+                              }}>
+                        <span className="material-symbols-outlined text-base"
+                              style={{ color: isPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                                       fontVariationSettings: "'FILL' 1" }}>
+                          {isPlaying ? 'pause' : 'play_arrow'}
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* 音量条（播放中才显示） */}
+                    {isPlaying && (
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-sm" style={{ color: 'var(--text-secondary)' }}>volume_down</span>
+                        <input type="range" min="0" max="1" step="0.01" value={vol}
+                               onChange={(e) => setVolume(sound, e.target.value)}
+                               className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
+                               style={{ accentColor: 'var(--accent)' }} />
+                        <span className="material-symbols-outlined text-sm" style={{ color: 'var(--text-secondary)' }}>volume_up</span>
+                      </div>
                     )}
                   </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider mb-1"
-                       style={{ color: 'var(--text-secondary)' }}>{item.label}</p>
-                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
 
+          {/* 进入睡眠按钮 */}
           <button onClick={handleStart}
                   className="w-full h-14 rounded-full font-['Space_Grotesk'] font-bold uppercase tracking-widest text-sm active:scale-95 transition-transform"
                   style={{
@@ -220,6 +215,7 @@ export default function SleepSetupPage() {
                   }}>
             进入睡眠模式
           </button>
+
         </div>
       </main>
     </div>
