@@ -1,19 +1,17 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import FlipDigit from '../components/ui/FlipDigit'
 import PageHeader from '../components/layout/PageHeader'
-import BottomNav from '../components/layout/BottomNav'
 import { useFlipClock } from '../hooks/useFlipClock'
-import { VIEWS } from '../context/AppContext'
+import { useApp, VIEWS } from '../context/AppContext'
 
 export default function FlipClockPage() {
   const { h0, h1, m0, m1, ampm } = useFlipClock()
-  const [zen, setZen] = useState(false)
+  const { zenMode, setZenMode } = useApp()
 
   const handleClick = useCallback((e) => {
-    // 点击导航区域不触发
-    if (e.target.closest('header') || e.target.closest('nav')) return
-    setZen(v => !v)
-  }, [])
+    if (e.target.closest('header')) return
+    setZenMode(v => !v)
+  }, [setZenMode])
 
   return (
     <div
@@ -25,12 +23,11 @@ export default function FlipClockPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1f1f1f_0%,transparent_100%)]" />
       </div>
 
-      {/* 顶部导航 */}
       <div style={{
         transition: 'opacity 0.4s, transform 0.4s',
-        opacity: zen ? 0 : 1,
-        transform: zen ? 'translateY(-100%)' : 'translateY(0)',
-        pointerEvents: zen ? 'none' : 'auto',
+        opacity: zenMode ? 0 : 1,
+        transform: zenMode ? 'translateY(-100%)' : 'translateY(0)',
+        pointerEvents: zenMode ? 'none' : 'auto',
       }}>
         <PageHeader currentTab={VIEWS.CLOCK} />
       </div>
@@ -56,45 +53,30 @@ export default function FlipClockPage() {
         </div>
 
         <div className="mt-6 flex items-center gap-3">
-          <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em] transition-colors"
+          <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em]"
                 style={{ color: ampm === 'AM' ? 'var(--accent)' : 'var(--border)' }}>AM</span>
           <div className="w-px h-4" style={{ background: 'var(--border)' }} />
-          <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em] transition-colors"
+          <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em]"
                 style={{ color: ampm === 'PM' ? 'var(--accent)' : 'var(--border)' }}>PM</span>
         </div>
 
-        <div className="mt-12 text-center" style={{
-          transition: 'opacity 0.4s',
-          opacity: zen ? 0 : 1,
-        }}>
+        <div className="mt-12 text-center" style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s' }}>
           <p className="font-['Space_Grotesk'] uppercase tracking-[0.2em] text-xs mb-2"
              style={{ color: 'var(--text-secondary)' }}>Current Session</p>
           <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
               style={{ color: 'var(--text-primary)' }}>Deep Work Phase</h2>
         </div>
 
-        {/* 清屏提示 */}
-        {zen && (
+        {zenMode && (
           <div style={{
             position: 'fixed', bottom: '40px', left: 0, right: 0,
             textAlign: 'center', opacity: 0.3,
-            animation: 'fadeIn 0.4s ease',
           }}>
             <p className="font-['Space_Grotesk'] text-xs uppercase tracking-widest"
                style={{ color: 'var(--text-secondary)' }}>点击屏幕退出专注模式</p>
           </div>
         )}
       </main>
-
-      {/* 底部导航 */}
-      <div style={{
-        transition: 'opacity 0.4s, transform 0.4s',
-        opacity: zen ? 0 : 1,
-        transform: zen ? 'translateY(100%)' : 'translateY(0)',
-        pointerEvents: zen ? 'none' : 'auto',
-      }}>
-        <BottomNav />
-      </div>
     </div>
   )
 }

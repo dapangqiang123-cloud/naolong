@@ -96,6 +96,7 @@ export function AppProvider({ children }) {
     () => localStorage.getItem(STORAGE_KEY) || SKINS.CLASSIC_MONO
   )
   const [wakeUpTime, setWakeUpTime] = useState({ hour: 7, minute: 0 })
+  const [zenMode, setZenMode] = useState(false)
 
   useEffect(() => {
     applySkin(currentSkin)
@@ -112,6 +113,7 @@ export function AppProvider({ children }) {
       currentView, setCurrentView,
       currentSkin, changeSkin,
       wakeUpTime, setWakeUpTime,
+      zenMode, setZenMode,
       skinTokens: SKIN_TOKENS,
     }}>
       {children}

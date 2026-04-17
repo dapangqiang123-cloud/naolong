@@ -8,10 +8,10 @@ import SettingsPage from './pages/SettingsPage'
 import SkinsPage from './pages/SkinsPage'
 
 function AppInner() {
-  const { currentView } = useApp()
+  const { currentView, zenMode } = useApp()
   const isImmersive = currentView === VIEWS.SLEEP_ACTIVE
   return (
-    <div className="dark min-h-screen w-full bg-[#131313] text-[#e2e2e2]">
+    <div className="dark min-h-screen w-full" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <main className={isImmersive ? '' : 'pb-20'}>
         {currentView === VIEWS.POMODORO     && <PomodoroPage />}
         {currentView === VIEWS.CLOCK        && <FlipClockPage />}
@@ -20,7 +20,7 @@ function AppInner() {
         {currentView === VIEWS.SETTINGS     && <SettingsPage />}
         {currentView === VIEWS.SKINS        && <SkinsPage />}
       </main>
-      {!isImmersive && <BottomNav />}
+      {!isImmersive && !zenMode && <BottomNav />}
     </div>
   )
 }
