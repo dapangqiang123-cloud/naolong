@@ -8,7 +8,6 @@ export default function PomodoroPage() {
   const { setCurrentView, zenMode, setZenMode } = useApp()
   const { m0, m1, s0, s1, isRunning, start, pause, reset, isFinished } = usePomodoro()
 
-  // 横屏自动清屏
   useEffect(() => {
     const handler = () => {
       const isLandscape = window.innerWidth > window.innerHeight
@@ -35,22 +34,11 @@ export default function PomodoroPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1f1f1f_0%,transparent_100%)]" />
       </div>
 
-      <div style={{
-        transition: 'opacity 0.4s, transform 0.4s',
-        opacity: zenMode ? 0 : 1,
-        transform: zenMode ? 'translateY(-100%)' : 'translateY(0)',
-        pointerEvents: zenMode ? 'none' : 'auto',
-      }}>
+      {!zenMode && (
         <PageHeader currentTab={VIEWS.POMODORO} />
-      </div>
+      )}
 
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
-        <div className="absolute top-12 left-0 right-0 flex justify-center opacity-10 pointer-events-none select-none">
-          <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">
-            {isRunning ? 'FOCUS' : isFinished ? 'DONE' : 'READY'}
-          </p>
-        </div>
-
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
             <FlipDigit value={m0} />
@@ -68,44 +56,45 @@ export default function PomodoroPage() {
           </div>
         </div>
 
-        {/* 状态文字 */}
-        <div className="mt-8 text-center" style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s' }}>
-          <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
-              style={{ color: 'var(--text-primary)' }}>
-            {isFinished ? '休息一下吧' : isRunning ? 'Deep Work Phase' : '准备开始'}
-          </h2>
-        </div>
+        {!zenMode && (
+          <>
+            <div className="mt-8 text-center">
+              <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
+                  style={{ color: 'var(--text-primary)' }}>
+                {isFinished ? '休息一下吧' : isRunning ? 'Deep Work Phase' : '准备开始'}
+              </h2>
+            </div>
 
-        {/* 按钮区 */}
-        <div className="mt-10 w-full px-12 flex flex-col items-center gap-8"
-             style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s', pointerEvents: zenMode ? 'none' : 'auto' }}>
-          <button
-            onClick={isRunning ? pause : start}
-            className="w-full max-w-xs h-14 rounded-full font-['Space_Grotesk'] font-bold text-xl active:scale-95 transition-transform"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black))',
-              color: 'var(--bg-primary)',
-              boxShadow: '0 0 32px 0 var(--accent-soft)',
-            }}
-          >
-            {isRunning ? '暂停' : isFinished ? '再来一轮' : '开始专注'}
-          </button>
+            <div className="mt-10 w-full px-12 flex flex-col items-center gap-8">
+              <button
+                onClick={isRunning ? pause : start}
+                className="w-full max-w-xs h-14 rounded-full font-['Space_Grotesk'] font-bold text-xl active:scale-95 transition-transform"
+                style={{
+                  background: 'linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black))',
+                  color: 'var(--bg-primary)',
+                  boxShadow: '0 0 32px 0 var(--accent-soft)',
+                }}
+              >
+                {isRunning ? '暂停' : isFinished ? '再来一轮' : '开始专注'}
+              </button>
 
-          <div className="flex items-center gap-16">
-            <button onClick={reset} className="flex flex-col items-center gap-2">
-              <span className="material-symbols-outlined"
-                    style={{ color: 'var(--text-secondary)', fontSize: '28px' }}>refresh</span>
-              <span className="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest"
-                    style={{ color: 'var(--text-secondary)' }}>重置</span>
-            </button>
-            <button onClick={() => setCurrentView(VIEWS.SETTINGS)} className="flex flex-col items-center gap-2">
-              <span className="material-symbols-outlined"
-                    style={{ color: 'var(--text-secondary)', fontSize: '28px' }}>settings</span>
-              <span className="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest"
-                    style={{ color: 'var(--text-secondary)' }}>设置</span>
-            </button>
-          </div>
-        </div>
+              <div className="flex items-center gap-16">
+                <button onClick={reset} className="flex flex-col items-center gap-2">
+                  <span className="material-symbols-outlined"
+                        style={{ color: 'var(--text-secondary)', fontSize: '28px' }}>refresh</span>
+                  <span className="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest"
+                        style={{ color: 'var(--text-secondary)' }}>重置</span>
+                </button>
+                <button onClick={() => setCurrentView(VIEWS.SETTINGS)} className="flex flex-col items-center gap-2">
+                  <span className="material-symbols-outlined"
+                        style={{ color: 'var(--text-secondary)', fontSize: '28px' }}>settings</span>
+                  <span className="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest"
+                        style={{ color: 'var(--text-secondary)' }}>设置</span>
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         {zenMode && (
           <div style={{
