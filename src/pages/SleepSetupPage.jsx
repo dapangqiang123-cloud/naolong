@@ -3,28 +3,26 @@ import { useApp, VIEWS } from '../context/AppContext'
 
 export default function SleepSetupPage() {
   const { setCurrentView, setWakeUpTime } = useApp()
-
-  const [wakeHour, setWakeHour] = useState(7)
-  const [wakeMinute, setWakeMinute] = useState(0)
+  const [wakeTime, setWakeTime] = useState('07:00')
   const [sleepDuration, setSleepDuration] = useState('')
 
   useEffect(() => {
+    const [h, m] = wakeTime.split(':').map(Number)
     const now = new Date()
     const wake = new Date()
-    wake.setHours(wakeHour, wakeMinute, 0, 0)
+    wake.setHours(h, m, 0, 0)
     if (wake <= now) wake.setDate(wake.getDate() + 1)
     const diff = (wake - now) / 1000 / 60
-    const h = Math.floor(diff / 60)
-    const m = Math.floor(diff % 60)
-    setSleepDuration(`${h} 小时 ${m} 分钟`)
-  }, [wakeHour, wakeMinute])
+    const hours = Math.floor(diff / 60)
+    const mins = Math.floor(diff % 60)
+    setSleepDuration(`${hours} 小时 ${mins} 分钟`)
+  }, [wakeTime])
 
   const handleStart = () => {
-    setWakeUpTime({ hour: wakeHour, minute: wakeMinute })
+    const [h, m] = wakeTime.split(':').map(Number)
+    setWakeUpTime({ hour: h, minute: m })
     setCurrentView(VIEWS.SLEEP_ACTIVE)
   }
-
-  const minutes = [0, 15, 30, 45]
 
   return (
     <div className="relative min-h-screen flex flex-col"
@@ -55,52 +53,38 @@ export default function SleepSetupPage() {
           <div className="flex justify-between items-center mb-8">
             <span className="font-['Space_Grotesk'] text-xs tracking-[0.3em] font-medium uppercase"
                   style={{ color: 'var(--text-secondary)' }}>设定唤醒时间</span>
-            <span className="material-symbols-outlined text-xl cursor-pointer"
-                  style={{ color: 'var(--text-secondary)' }}>tune</span>
           </div>
 
           {/* 时间选择器 */}
-          <div className="flex gap-8 items-center justify-center mb-8">
-            <div className="flex flex-col items-center gap-2">
-              <button onClick={() => setWakeHour(h => (h + 1) % 24)}
-                      className="w-12 h-12 flex items-center justify-center rounded-full transition-colors"
-                      style={{ background: 'var(--bg-secondary)' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>expand_less</span>
-              </button>
-              <div className="font-['Manrope'] font-extralight text-[5rem] leading-none tracking-tighter"
-                   style={{ color: 'var(--text-primary)' }}>
-                {String(wakeHour).padStart(2, '0')}
-              </div>
-              <button onClick={() => setWakeHour(h => (h - 1 + 24) % 24)}
-                      className="w-12 h-12 flex items-center justify-center rounded-full transition-colors"
-                      style={{ background: 'var(--bg-secondary)' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>expand_more</span>
-              </button>
+          <div className="flex flex-col items-center mb-8">
+            <div className="font-['Manrope'] font-extralight text-[5rem] leading-none tracking-tighter mb-4"
+                 style={{ color: 'var(--text-primary)' }}>
+              {wakeTime}
             </div>
-
-            <div className="font-['Manrope'] font-extralight text-[4rem] mb-2"
-                 style={{ color: 'var(--border)' }}>:</div>
-
-            <div className="flex flex-col items-center gap-2">
-              <button onClick={() => setWakeMinute(m => minutes[(minutes.indexOf(m) + 1) % minutes.length])}
-                      className="w-12 h-12 flex items-center justify-center rounded-full transition-colors"
-                      style={{ background: 'var(--bg-secondary)' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>expand_less</span>
-              </button>
-              <div className="font-['Manrope'] font-extralight text-[5rem] leading-none tracking-tighter"
-                   style={{ color: 'var(--text-primary)' }}>
-                {String(wakeMinute).padStart(2, '0')}
-              </div>
-              <button onClick={() => setWakeMinute(m => { const idx = minutes.indexOf(m); return minutes[(idx - 1 + minutes.length) % minutes.length] })}
-                      className="w-12 h-12 flex items-center justify-center rounded-full transition-colors"
-                      style={{ background: 'var(--bg-secondary)' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>expand_more</span>
-              </button>
-            </div>
+            <input
+              type="time"
+              value={wakeTime}
+              onChange={(e) => setWakeTime(e.target.value)}
+              style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                color: 'var(--text-primary)',
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '16px',
+                padding: '12px 20px',
+                width: '100%',
+                textAlign: 'center',
+                outline: 'none',
+                cursor: 'pointer',
+              }}
+            />
           </div>
 
+          {/* 预计睡眠时长 */}
           <div className="text-center mb-10">
-            <p className="font-['Manrope'] text-sm tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+            <p className="font-['Manrope'] text-sm tracking-wide"
+               style={{ color: 'var(--text-secondary)' }}>
               预计睡眠：<span style={{ color: 'var(--text-primary)' }}>{sleepDuration}</span>
             </p>
           </div>
@@ -116,7 +100,8 @@ export default function SleepSetupPage() {
                    style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
                 <span className="material-symbols-outlined text-lg" style={{ color: 'var(--accent)' }}>{item.icon}</span>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--text-secondary)' }}>{item.label}</p>
+                  <p className="text-[10px] uppercase tracking-wider mb-1"
+                     style={{ color: 'var(--text-secondary)' }}>{item.label}</p>
                   <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
                 </div>
               </div>
