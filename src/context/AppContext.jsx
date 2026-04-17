@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 
 const AppContext = createContext(null)
 
@@ -98,6 +98,11 @@ export function AppProvider({ children }) {
   const [wakeUpTime, setWakeUpTime] = useState({ hour: 7, minute: 0 })
   const [zenMode, setZenMode] = useState(false)
 
+  // 全局共享音效状态
+  const [playingMap, setPlayingMap] = useState({})
+  const [volumeMap, setVolumeMap] = useState({})
+  const soundsRef = useRef({})
+
   useEffect(() => {
     applySkin(currentSkin)
   }, [])
@@ -108,6 +113,44 @@ export function AppProvider({ children }) {
     localStorage.setItem(STORAGE_KEY, skinId)
   }
 
+  const getOrCreateAudio = (sound) => {
+    if (!soundsRef.current[sound.id]) {
+      const audio = new Audio(sound.file)
+      audio.loop = true
+      audio.volume = volumeMap[sound.id] ?? 0.6
+      soundsRef.current[sound.id] = { audio }
+    }
+    return soundsRef.current[sound.id].audio
+  }
+
+  const toggleSound = (sound) => {
+    const audio = getOrCreateAudio(sound)
+    if (playingMap[sound.id]) {
+      audio.pause()
+      setPlayingMap(prev => ({ ...prev, [sound.id]: false }))
+    } else {
+      audio.play()
+      setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
+    }
+  }
+
+  const setVolume = (sound, value) => {
+    const vol = parseFloat(value)
+    setVolumeMap(prev => ({ ...prev, [sound.id]: vol }))
+    if (soundsRef.current[sound.id]) {
+      soundsRef.current[sound.id].audio.volume = vol
+    }
+  }
+
+  const stopAllSounds = () => {
+    Object.values(soundsRef.current).forEach(({ audio }) => {
+      audio.pause()
+      audio.currentTime = 0
+    })
+    soundsRef.current = {}
+    setPlayingMap({})
+  }
+
   return (
     <AppContext.Provider value={{
       currentView, setCurrentView,
@@ -115,6 +158,9 @@ export function AppProvider({ children }) {
       wakeUpTime, setWakeUpTime,
       zenMode, setZenMode,
       skinTokens: SKIN_TOKENS,
+      // 音效
+      playingMap, volumeMap,
+      toggleSound, setVolume, stopAllSounds,
     }}>
       {children}
     </AppContext.Provider>
