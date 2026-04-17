@@ -8,7 +8,6 @@ export default function FlipClockPage() {
   const { h0, h1, m0, m1, ampm } = useFlipClock()
   const { zenMode, setZenMode } = useApp()
 
-  // 横屏自动清屏
   useEffect(() => {
     const handler = () => {
       const isLandscape = window.innerWidth > window.innerHeight
@@ -34,19 +33,15 @@ export default function FlipClockPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1f1f1f_0%,transparent_100%)]" />
       </div>
 
-      <div style={{
-        transition: 'opacity 0.4s, transform 0.4s',
-        opacity: zenMode ? 0 : 1,
-        transform: zenMode ? 'translateY(-100%)' : 'translateY(0)',
-        pointerEvents: zenMode ? 'none' : 'auto',
-      }}>
-        <PageHeader currentTab={VIEWS.CLOCK} />
-      </div>
+      {!zenMode && <PageHeader currentTab={VIEWS.CLOCK} />}
 
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
-        <div className="absolute top-12 left-0 right-0 flex justify-center opacity-10 pointer-events-none select-none">
-          <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">FOCUS</p>
-        </div>
+
+        {!zenMode && (
+          <div className="absolute top-12 left-0 right-0 flex justify-center opacity-10 pointer-events-none select-none">
+            <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">FOCUS</p>
+          </div>
+        )}
 
         <div className="flex items-center gap-3 w-full justify-center px-6">
           <div className="flex gap-2">
@@ -71,12 +66,14 @@ export default function FlipClockPage() {
                 style={{ color: ampm === 'PM' ? 'var(--accent)' : 'var(--border)' }}>PM</span>
         </div>
 
-        <div className="mt-12 text-center" style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s' }}>
-          <p className="font-['Space_Grotesk'] uppercase tracking-[0.2em] text-xs mb-2"
-             style={{ color: 'var(--text-secondary)' }}>Current Session</p>
-          <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
-              style={{ color: 'var(--text-primary)' }}>Deep Work Phase</h2>
-        </div>
+        {!zenMode && (
+          <div className="mt-12 text-center">
+            <p className="font-['Space_Grotesk'] uppercase tracking-[0.2em] text-xs mb-2"
+               style={{ color: 'var(--text-secondary)' }}>Current Session</p>
+            <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
+                style={{ color: 'var(--text-primary)' }}>Deep Work Phase</h2>
+          </div>
+        )}
 
         {zenMode && (
           <div style={{
