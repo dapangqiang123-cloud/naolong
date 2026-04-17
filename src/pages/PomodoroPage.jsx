@@ -1,34 +1,54 @@
+import { useCallback } from 'react'
 import FlipDigit from '../components/ui/FlipDigit'
 import PageHeader from '../components/layout/PageHeader'
 import { useApp, VIEWS } from '../context/AppContext'
 import { usePomodoro } from '../hooks/usePomodoro'
 
 export default function PomodoroPage() {
-  const { setCurrentView } = useApp()
+  const { setCurrentView, zenMode, setZenMode } = useApp()
   const { m0, m1, s0, s1, isRunning, start, pause, reset, isFinished } = usePomodoro()
 
+  const handleClick = useCallback((e) => {
+    if (e.target.closest('header')) return
+    if (e.target.closest('button')) return
+    setZenMode(v => !v)
+  }, [setZenMode])
+
   return (
-    <div className="relative min-h-screen overflow-hidden flex flex-col"
-         style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div
+      className="relative min-h-screen overflow-hidden flex flex-col"
+      style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+      onClick={handleClick}
+    >
       <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1f1f1f_0%,transparent_100%)]" />
       </div>
-      <PageHeader currentTab={VIEWS.POMODORO} />
+
+      <div style={{
+        transition: 'opacity 0.4s, transform 0.4s',
+        opacity: zenMode ? 0 : 1,
+        transform: zenMode ? 'translateY(-100%)' : 'translateY(0)',
+        pointerEvents: zenMode ? 'none' : 'auto',
+      }}>
+        <PageHeader currentTab={VIEWS.POMODORO} />
+      </div>
+
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
         <div className="absolute top-12 left-0 right-0 flex justify-center opacity-10 pointer-events-none select-none">
           <p className="font-['Space_Grotesk'] text-8xl font-bold tracking-tighter">
             {isRunning ? 'FOCUS' : isFinished ? 'DONE' : 'READY'}
           </p>
         </div>
+
         <div className="flex items-center gap-2 md:gap-8">
           <div className="flex gap-1 md:gap-2">
             <FlipDigit value={m0} />
             <FlipDigit value={m1} />
           </div>
           <div className="flex flex-col gap-3 mb-1">
-            <div className="w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors"
+            <div className="w-2 h-2 rounded-full transition-colors"
                  style={{ background: isRunning ? 'var(--accent)' : 'var(--border)' }} />
-            <div className="w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors"
+            <div className="w-2 h-2 rounded-full transition-colors"
                  style={{ background: isRunning ? 'var(--accent)' : 'var(--border)' }} />
           </div>
           <div className="flex gap-1 md:gap-2">
@@ -36,13 +56,16 @@ export default function PomodoroPage() {
             <FlipDigit value={s1} />
           </div>
         </div>
-        <div className="mt-12 text-center">
+
+        <div className="mt-12 text-center" style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s' }}>
           <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
               style={{ color: 'var(--text-primary)' }}>
             {isFinished ? '休息一下吧' : isRunning ? 'Deep Work Phase' : '准备开始'}
           </h2>
         </div>
-        <div className="absolute bottom-28 w-full px-12 flex flex-col items-center gap-10">
+
+        <div className="absolute bottom-28 w-full px-12 flex flex-col items-center gap-10"
+             style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s', pointerEvents: zenMode ? 'none' : 'auto' }}>
           <button
             onClick={isRunning ? pause : start}
             className="w-full max-w-xs h-16 rounded-full font-['Space_Grotesk'] font-bold text-xl active:scale-95 transition-transform"
@@ -54,6 +77,7 @@ export default function PomodoroPage() {
           >
             {isRunning ? '暂停' : isFinished ? '再来一轮' : '开始专注'}
           </button>
+
           <div className="flex items-center gap-16">
             <button onClick={reset} className="flex flex-col items-center gap-2">
               <span className="material-symbols-outlined"
@@ -69,6 +93,16 @@ export default function PomodoroPage() {
             </button>
           </div>
         </div>
+
+        {zenMode && (
+          <div style={{
+            position: 'fixed', bottom: '40px', left: 0, right: 0,
+            textAlign: 'center', opacity: 0.3,
+          }}>
+            <p className="font-['Space_Grotesk'] text-xs uppercase tracking-widest"
+               style={{ color: 'var(--text-secondary)' }}>点击屏幕退出专注模式</p>
+          </div>
+        )}
       </main>
     </div>
   )
