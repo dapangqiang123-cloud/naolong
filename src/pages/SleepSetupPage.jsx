@@ -1,10 +1,58 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useApp, VIEWS } from '../context/AppContext'
+
+// 白噪音生成器
+function createWhiteNoise(audioCtx, volume = 0.15) {
+  const bufferSize = audioCtx.sampleRate * 2
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
+
+  const source = audioCtx.createBufferSource()
+  source.buffer = buffer
+  source.loop = true
+
+  const gain = audioCtx.createGain()
+  gain.gain.value = volume
+
+  source.connect(gain)
+  gain.connect(audioCtx.destination)
+  return { source, gain }
+}
+
+// 雨声生成器（用滤波白噪音模拟）
+function createRainNoise(audioCtx, volume = 0.2) {
+  const bufferSize = audioCtx.sampleRate * 2
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
+
+  const source = audioCtx.createBufferSource()
+  source.buffer = buffer
+  source.loop = true
+
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.frequency.value = 800
+  filter.Q.value = 0.5
+
+  const gain = audioCtx.createGain()
+  gain.gain.value = volume
+
+  source.connect(filter)
+  filter.connect(gain)
+  gain.connect(audioCtx.destination)
+  return { source, gain }
+}
 
 export default function SleepSetupPage() {
   const { setCurrentView, setWakeUpTime } = useApp()
   const [wakeTime, setWakeTime] = useState('07:00')
   const [sleepDuration, setSleepDuration] = useState('')
+  const [activeSound, setActiveSound] = useState(null) // 'rain' | 'wind' | null
+
+  const audioCtxRef = useRef(null)
+  const soundRef = useRef(null)
 
   useEffect(() => {
     const [h, m] = wakeTime.split(':').map(Number)
@@ -18,11 +66,56 @@ export default function SleepSetupPage() {
     setSleepDuration(`${hours} 小时 ${mins} 分钟`)
   }, [wakeTime])
 
+  // 组件卸载时停止音效
+  useEffect(() => {
+    return () => stopSound()
+  }, [])
+
+  const stopSound = () => {
+    if (soundRef.current) {
+      try { soundRef.current.source.stop() } catch {}
+      soundRef.current = null
+    }
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close()
+      audioCtxRef.current = null
+    }
+  }
+
+  const toggleSound = (type) => {
+    // 点同一个 → 关闭
+    if (activeSound === type) {
+      stopSound()
+      setActiveSound(null)
+      return
+    }
+
+    // 切换到另一个 → 先停再开
+    stopSound()
+
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    audioCtxRef.current = ctx
+
+    const { source, gain } = type === 'rain'
+      ? createRainNoise(ctx)
+      : createWhiteNoise(ctx)
+
+    source.start()
+    soundRef.current = { source, gain }
+    setActiveSound(type)
+  }
+
   const handleStart = () => {
+    stopSound()
     const [h, m] = wakeTime.split(':').map(Number)
     setWakeUpTime({ hour: h, minute: m })
     setCurrentView(VIEWS.SLEEP_ACTIVE)
   }
+
+  const sounds = [
+    { id: 'rain', icon: 'water_drop', label: '环境音', value: '雨声' },
+    { id: 'wind', icon: 'air', label: '白噪音', value: '微风' },
+  ]
 
   return (
     <div className="relative min-h-screen flex flex-col"
@@ -35,7 +128,7 @@ export default function SleepSetupPage() {
 
       <header className="relative z-10 flex justify-between items-center px-8 h-24">
         <h1 className="font-['Space_Grotesk'] font-bold text-3xl tracking-tight">快眠向导</h1>
-        <button onClick={() => setCurrentView(VIEWS.CLOCK)}
+        <button onClick={() => { stopSound(); setCurrentView(VIEWS.CLOCK) }}
                 className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
                 style={{ background: 'var(--bg-secondary)' }}>
           <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>close</span>
@@ -89,23 +182,33 @@ export default function SleepSetupPage() {
             </p>
           </div>
 
-          {/* 环境音 */}
+          {/* 环境音卡片 */}
           <div className="grid grid-cols-2 gap-4 mb-8">
-            {[
-              { icon: 'water_drop', label: '环境音', value: '雨声' },
-              { icon: 'air', label: '白噪音', value: '微风' },
-            ].map(item => (
-              <div key={item.label}
-                   className="rounded-xl p-4 flex flex-col gap-2 cursor-pointer transition-all"
-                   style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-                <span className="material-symbols-outlined text-lg" style={{ color: 'var(--accent)' }}>{item.icon}</span>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider mb-1"
-                     style={{ color: 'var(--text-secondary)' }}>{item.label}</p>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
+            {sounds.map(item => {
+              const isActive = activeSound === item.id
+              return (
+                <div key={item.id}
+                     onClick={() => toggleSound(item.id)}
+                     className="rounded-xl p-4 flex flex-col gap-2 cursor-pointer transition-all active:scale-95"
+                     style={{
+                       background: isActive ? 'var(--accent-soft)' : 'var(--bg-secondary)',
+                       border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+                       boxShadow: isActive ? '0 0 20px var(--accent-soft)' : 'none',
+                     }}>
+                  <div className="flex items-center justify-between">
+                    <span className="material-symbols-outlined text-lg" style={{ color: 'var(--accent)' }}>{item.icon}</span>
+                    {isActive && (
+                      <span className="material-symbols-outlined text-sm animate-pulse" style={{ color: 'var(--accent)' }}>volume_up</span>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider mb-1"
+                       style={{ color: 'var(--text-secondary)' }}>{item.label}</p>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           <button onClick={handleStart}
