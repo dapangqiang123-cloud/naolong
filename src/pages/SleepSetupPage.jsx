@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useApp, VIEWS } from '../context/AppContext'
+import { useApp, VIEWS, TIMER_OPTIONS } from '../context/AppContext'
 
 const SLEEP_SOUNDS = [
   { id: 'rain1', file: '/sounds/sleep/rain1.mp3', label: '春雨', icon: 'water_drop' },
@@ -17,11 +17,18 @@ const WAKE_SOUNDS = [
   { id: 'slowmusic', file: '/sounds/wake/slowmusic.mp3', label: '晴雨', icon: 'music_note' },
 ]
 
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
 export default function SleepSetupPage() {
-  const { setCurrentView, setWakeUpTime, playingMap, volumeMap, toggleSound, setVolume, stopAllSounds } = useApp()
+  const { setCurrentView, setWakeUpTime, playingMap, timerMap, toggleSound, setSoundTimer, clearSoundTimer, stopAllSounds } = useApp()
   const [wakeTime, setWakeTime] = useState('07:00')
   const [sleepDuration, setSleepDuration] = useState('')
   const [activeTab, setActiveTab] = useState('sleep')
+  const [expandedTimer, setExpandedTimer] = useState(null)
 
   useEffect(() => {
     const [h, m] = wakeTime.split(':').map(Number)
@@ -64,6 +71,7 @@ export default function SleepSetupPage() {
       <main className="relative z-10 flex-1 flex flex-col items-center px-6 pb-32 pt-4">
         <div className="w-full max-w-md space-y-4">
 
+          {/* 时间卡片 */}
           <div className="rounded-2xl p-6"
                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 0 80px rgba(0,0,0,0.3)' }}>
             <span className="font-['Space_Grotesk'] text-xs tracking-[0.3em] font-medium uppercase"
@@ -84,6 +92,7 @@ export default function SleepSetupPage() {
             </p>
           </div>
 
+          {/* 音效卡片 */}
           <div className="rounded-2xl p-6"
                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="flex gap-2 mb-5 p-1 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
@@ -102,14 +111,17 @@ export default function SleepSetupPage() {
             <div className="space-y-3">
               {currentSounds.map(sound => {
                 const isPlaying = !!playingMap[sound.id]
-                const vol = volumeMap[sound.id] ?? 0.6
+                const remaining = timerMap[sound.id]
+                const isExpanded = expandedTimer === sound.id
+
                 return (
                   <div key={sound.id} className="rounded-xl p-4 transition-all"
                        style={{
                          background: isPlaying ? 'var(--accent-soft)' : 'var(--bg-secondary)',
                          border: `1px solid ${isPlaying ? 'var(--accent)' : 'var(--border)'}`,
                        }}>
-                    <div className="flex items-center justify-between mb-2">
+                    {/* 主行 */}
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-xl"
                               style={{ color: 'var(--accent)', fontVariationSettings: "'FILL' 1" }}>
@@ -118,24 +130,63 @@ export default function SleepSetupPage() {
                         <span className="font-['Space_Grotesk'] text-sm font-medium"
                               style={{ color: 'var(--text-primary)' }}>{sound.label}</span>
                       </div>
-                      <button onClick={() => toggleSound(sound)}
-                              className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
-                              style={{ background: isPlaying ? 'var(--accent)' : 'var(--border)' }}>
-                        <span className="material-symbols-outlined text-base"
-                              style={{ color: isPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
-                                       fontVariationSettings: "'FILL' 1" }}>
-                          {isPlaying ? 'pause' : 'play_arrow'}
-                        </span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {/* 定时显示/按钮 */}
+                        {isPlaying && (
+                          <button
+                            onClick={() => setExpandedTimer(isExpanded ? null : sound.id)}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs cursor-pointer transition-all"
+                            style={{
+                              background: remaining ? 'var(--accent-soft)' : 'transparent',
+                              color: remaining ? 'var(--accent)' : 'var(--text-secondary)',
+                              border: `1px solid ${remaining ? 'var(--accent)' : 'var(--border)'}`,
+                            }}>
+                            <span className="material-symbols-outlined text-sm">timer</span>
+                            {remaining ? formatTime(remaining) : '定时'}
+                          </button>
+                        )}
+                        {/* 播放按钮 */}
+                        <button onClick={() => toggleSound(sound)}
+                                className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+                                style={{ background: isPlaying ? 'var(--accent)' : 'var(--border)' }}>
+                          <span className="material-symbols-outlined text-base"
+                                style={{ color: isPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                                         fontVariationSettings: "'FILL' 1" }}>
+                            {isPlaying ? 'pause' : 'play_arrow'}
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                    {isPlaying && (
-                      <div className="flex items-center gap-3 mt-3">
-                        <span className="material-symbols-outlined text-sm" style={{ color: 'var(--text-secondary)' }}>volume_down</span>
-                        <input type="range" min="0" max="1" step="0.01" value={vol}
-                               onChange={(e) => setVolume(sound, e.target.value)}
-                               className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
-                               style={{ accentColor: 'var(--accent)' }} />
-                        <span className="material-symbols-outlined text-sm" style={{ color: 'var(--text-secondary)' }}>volume_up</span>
+
+                    {/* 定时选项展开 */}
+                    {isPlaying && isExpanded && (
+                      <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                        <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>自动关闭</p>
+                        <div className="flex flex-wrap gap-2">
+                          {remaining && (
+                            <button
+                              onClick={() => { clearSoundTimer(sound); setExpandedTimer(null) }}
+                              className="px-3 py-1 rounded-lg text-xs cursor-pointer transition-all"
+                              style={{
+                                background: 'var(--accent)',
+                                color: 'var(--bg-primary)',
+                              }}>
+                              取消定时
+                            </button>
+                          )}
+                          {TIMER_OPTIONS.map(opt => (
+                            <button key={opt.value}
+                                    onClick={() => { setSoundTimer(sound, opt.value); setExpandedTimer(null) }}
+                                    className="px-3 py-1 rounded-lg text-xs cursor-pointer transition-all"
+                                    style={{
+                                      background: 'var(--bg-secondary)',
+                                      border: '1px solid var(--border)',
+                                      color: 'var(--text-primary)',
+                                    }}>
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

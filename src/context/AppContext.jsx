@@ -79,6 +79,14 @@ const SKIN_TOKENS = {
 
 const STORAGE_KEY = 'naolong_skin'
 
+export const TIMER_OPTIONS = [
+  { label: '10分钟', value: 10 },
+  { label: '30分钟', value: 30 },
+  { label: '50分钟', value: 50 },
+  { label: '80分钟', value: 80 },
+  { label: '120分钟', value: 120 },
+]
+
 function applySkin(skinId) {
   const tokens = SKIN_TOKENS[skinId]
   if (!tokens) return
@@ -98,14 +106,15 @@ export function AppProvider({ children }) {
   const [wakeUpTime, setWakeUpTime] = useState({ hour: 7, minute: 0 })
   const [zenMode, setZenMode] = useState(false)
 
-  // 全局共享音效状态
+  // 音效播放状态
   const [playingMap, setPlayingMap] = useState({})
-  const [volumeMap, setVolumeMap] = useState({})
-  const soundsRef = useRef({})
+  // 每个音效的定时剩余秒数 { [id]: seconds | null }
+  const [timerMap, setTimerMap] = useState({})
 
-  useEffect(() => {
-    applySkin(currentSkin)
-  }, [])
+  const soundsRef = useRef({})
+  const timerIntervalsRef = useRef({})
+
+  useEffect(() => { applySkin(currentSkin) }, [])
 
   const changeSkin = (skinId) => {
     setCurrentSkin(skinId)
@@ -117,38 +126,63 @@ export function AppProvider({ children }) {
     if (!soundsRef.current[sound.id]) {
       const audio = new Audio(sound.file)
       audio.loop = true
-      audio.volume = volumeMap[sound.id] ?? 0.6
+      audio.volume = 0.7
       soundsRef.current[sound.id] = { audio }
     }
     return soundsRef.current[sound.id].audio
   }
 
+  const stopSoundById = (id) => {
+    if (soundsRef.current[id]) {
+      soundsRef.current[id].audio.pause()
+    }
+    clearInterval(timerIntervalsRef.current[id])
+    setPlayingMap(prev => ({ ...prev, [id]: false }))
+    setTimerMap(prev => ({ ...prev, [id]: null }))
+  }
+
   const toggleSound = (sound) => {
     const audio = getOrCreateAudio(sound)
     if (playingMap[sound.id]) {
-      audio.pause()
-      setPlayingMap(prev => ({ ...prev, [sound.id]: false }))
+      stopSoundById(sound.id)
     } else {
       audio.play()
       setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
     }
   }
 
-  const setVolume = (sound, value) => {
-    const vol = parseFloat(value)
-    setVolumeMap(prev => ({ ...prev, [sound.id]: vol }))
-    if (soundsRef.current[sound.id]) {
-      soundsRef.current[sound.id].audio.volume = vol
-    }
+  // 设置定时关闭（分钟）
+  const setSoundTimer = (sound, minutes) => {
+    // 清掉旧定时
+    clearInterval(timerIntervalsRef.current[sound.id])
+
+    let remaining = minutes * 60
+    setTimerMap(prev => ({ ...prev, [sound.id]: remaining }))
+
+    timerIntervalsRef.current[sound.id] = setInterval(() => {
+      remaining -= 1
+      if (remaining <= 0) {
+        stopSoundById(sound.id)
+      } else {
+        setTimerMap(prev => ({ ...prev, [sound.id]: remaining }))
+      }
+    }, 1000)
+  }
+
+  // 取消定时
+  const clearSoundTimer = (sound) => {
+    clearInterval(timerIntervalsRef.current[sound.id])
+    setTimerMap(prev => ({ ...prev, [sound.id]: null }))
   }
 
   const stopAllSounds = () => {
-    Object.values(soundsRef.current).forEach(({ audio }) => {
-      audio.pause()
-      audio.currentTime = 0
+    Object.keys(soundsRef.current).forEach(id => {
+      soundsRef.current[id].audio.pause()
+      clearInterval(timerIntervalsRef.current[id])
     })
     soundsRef.current = {}
     setPlayingMap({})
+    setTimerMap({})
   }
 
   return (
@@ -158,9 +192,8 @@ export function AppProvider({ children }) {
       wakeUpTime, setWakeUpTime,
       zenMode, setZenMode,
       skinTokens: SKIN_TOKENS,
-      // 音效
-      playingMap, volumeMap,
-      toggleSound, setVolume, stopAllSounds,
+      playingMap, timerMap,
+      toggleSound, setSoundTimer, clearSoundTimer, stopAllSounds,
     }}>
       {children}
     </AppContext.Provider>
