@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useApp, VIEWS } from '../context/AppContext'
 
-// 音效配置
 const SLEEP_SOUNDS = [
   { id: 'rain1', file: '/sounds/sleep/rain1.mp3', label: '春雨', icon: 'water_drop' },
   { id: 'rain2', file: '/sounds/sleep/rain2.mp3', label: '春雷', icon: 'thunderstorm' },
@@ -19,16 +18,10 @@ const WAKE_SOUNDS = [
 ]
 
 export default function SleepSetupPage() {
-  const { setCurrentView, setWakeUpTime } = useApp()
+  const { setCurrentView, setWakeUpTime, playingMap, volumeMap, toggleSound, setVolume, stopAllSounds } = useApp()
   const [wakeTime, setWakeTime] = useState('07:00')
   const [sleepDuration, setSleepDuration] = useState('')
-  const [activeTab, setActiveTab] = useState('sleep') // 'sleep' | 'wake'
-
-  // 每个音效独立音量和播放状态
-  // { [id]: { audio, volume, playing } }
-  const soundsRef = useRef({})
-  const [playingMap, setPlayingMap] = useState({}) // { [id]: true/false }
-  const [volumeMap, setVolumeMap] = useState({})   // { [id]: 0~1 }
+  const [activeTab, setActiveTab] = useState('sleep')
 
   useEffect(() => {
     const [h, m] = wakeTime.split(':').map(Number)
@@ -42,51 +35,7 @@ export default function SleepSetupPage() {
     setSleepDuration(`${hours} 小时 ${mins} 分钟`)
   }, [wakeTime])
 
-  // 卸载时停所有
-  useEffect(() => {
-    return () => stopAll()
-  }, [])
-
-  const stopAll = () => {
-    Object.values(soundsRef.current).forEach(({ audio }) => {
-      audio.pause()
-      audio.currentTime = 0
-    })
-    soundsRef.current = {}
-    setPlayingMap({})
-  }
-
-  const getOrCreateAudio = (sound) => {
-    if (!soundsRef.current[sound.id]) {
-      const audio = new Audio(sound.file)
-      audio.loop = true
-      audio.volume = volumeMap[sound.id] ?? 0.6
-      soundsRef.current[sound.id] = { audio }
-    }
-    return soundsRef.current[sound.id].audio
-  }
-
-  const toggleSound = (sound) => {
-    const audio = getOrCreateAudio(sound)
-    if (playingMap[sound.id]) {
-      audio.pause()
-      setPlayingMap(prev => ({ ...prev, [sound.id]: false }))
-    } else {
-      audio.play()
-      setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
-    }
-  }
-
-  const setVolume = (sound, value) => {
-    const vol = parseFloat(value)
-    setVolumeMap(prev => ({ ...prev, [sound.id]: vol }))
-    if (soundsRef.current[sound.id]) {
-      soundsRef.current[sound.id].audio.volume = vol
-    }
-  }
-
   const handleStart = () => {
-    stopAll()
     const [h, m] = wakeTime.split(':').map(Number)
     setWakeUpTime({ hour: h, minute: m })
     setCurrentView(VIEWS.SLEEP_ACTIVE)
@@ -105,7 +54,7 @@ export default function SleepSetupPage() {
 
       <header className="relative z-10 flex justify-between items-center px-8 h-24">
         <h1 className="font-['Space_Grotesk'] font-bold text-3xl tracking-tight">快眠向导</h1>
-        <button onClick={() => { stopAll(); setCurrentView(VIEWS.CLOCK) }}
+        <button onClick={() => { stopAllSounds(); setCurrentView(VIEWS.CLOCK) }}
                 className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
                 style={{ background: 'var(--bg-secondary)' }}>
           <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>close</span>
@@ -115,7 +64,6 @@ export default function SleepSetupPage() {
       <main className="relative z-10 flex-1 flex flex-col items-center px-6 pb-32 pt-4">
         <div className="w-full max-w-md space-y-4">
 
-          {/* 时间卡片 */}
           <div className="rounded-2xl p-6"
                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 0 80px rgba(0,0,0,0.3)' }}>
             <span className="font-['Space_Grotesk'] text-xs tracking-[0.3em] font-medium uppercase"
@@ -136,11 +84,8 @@ export default function SleepSetupPage() {
             </p>
           </div>
 
-          {/* 音效卡片 */}
           <div className="rounded-2xl p-6"
                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-
-            {/* Tab 切换 */}
             <div className="flex gap-2 mb-5 p-1 rounded-xl" style={{ background: 'var(--bg-secondary)' }}>
               {[{ id: 'sleep', label: '助眠音效' }, { id: 'wake', label: '起床音乐' }].map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
@@ -154,7 +99,6 @@ export default function SleepSetupPage() {
               ))}
             </div>
 
-            {/* 音效列表 */}
             <div className="space-y-3">
               {currentSounds.map(sound => {
                 const isPlaying = !!playingMap[sound.id]
@@ -165,8 +109,7 @@ export default function SleepSetupPage() {
                          background: isPlaying ? 'var(--accent-soft)' : 'var(--bg-secondary)',
                          border: `1px solid ${isPlaying ? 'var(--accent)' : 'var(--border)'}`,
                        }}>
-                    {/* 上行：图标 + 名称 + 播放按钮 */}
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-xl"
                               style={{ color: 'var(--accent)', fontVariationSettings: "'FILL' 1" }}>
@@ -177,9 +120,7 @@ export default function SleepSetupPage() {
                       </div>
                       <button onClick={() => toggleSound(sound)}
                               className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
-                              style={{
-                                background: isPlaying ? 'var(--accent)' : 'var(--border)',
-                              }}>
+                              style={{ background: isPlaying ? 'var(--accent)' : 'var(--border)' }}>
                         <span className="material-symbols-outlined text-base"
                               style={{ color: isPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
                                        fontVariationSettings: "'FILL' 1" }}>
@@ -187,10 +128,8 @@ export default function SleepSetupPage() {
                         </span>
                       </button>
                     </div>
-
-                    {/* 音量条（播放中才显示） */}
                     {isPlaying && (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 mt-3">
                         <span className="material-symbols-outlined text-sm" style={{ color: 'var(--text-secondary)' }}>volume_down</span>
                         <input type="range" min="0" max="1" step="0.01" value={vol}
                                onChange={(e) => setVolume(sound, e.target.value)}
@@ -205,7 +144,6 @@ export default function SleepSetupPage() {
             </div>
           </div>
 
-          {/* 进入睡眠按钮 */}
           <button onClick={handleStart}
                   className="w-full h-14 rounded-full font-['Space_Grotesk'] font-bold uppercase tracking-widest text-sm active:scale-95 transition-transform"
                   style={{
@@ -215,7 +153,6 @@ export default function SleepSetupPage() {
                   }}>
             进入睡眠模式
           </button>
-
         </div>
       </main>
     </div>

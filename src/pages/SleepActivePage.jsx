@@ -35,7 +35,7 @@ export default function SleepActivePage() {
     <div
       onClick={resetTimer}
       onMouseMove={resetTimer}
-      className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center cursor-none"
+      className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center cursor-auto"
       style={{ background: 'radial-gradient(circle at center top, #1a2404 0%, #0e0e0e 70%)' }}
     >
       {/* 防烧屏遮罩 */}
