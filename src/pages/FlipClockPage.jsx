@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import FlipDigit from '../components/ui/FlipDigit'
 import PageHeader from '../components/layout/PageHeader'
 import { useFlipClock } from '../hooks/useFlipClock'
@@ -7,6 +7,17 @@ import { useApp, VIEWS } from '../context/AppContext'
 export default function FlipClockPage() {
   const { h0, h1, m0, m1, ampm } = useFlipClock()
   const { zenMode, setZenMode } = useApp()
+
+  // 横屏自动清屏
+  useEffect(() => {
+    const handler = () => {
+      const isLandscape = window.innerWidth > window.innerHeight
+      setZenMode(isLandscape)
+    }
+    handler()
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [setZenMode])
 
   const handleClick = useCallback((e) => {
     if (e.target.closest('header')) return
@@ -69,7 +80,7 @@ export default function FlipClockPage() {
 
         {zenMode && (
           <div style={{
-            position: 'fixed', bottom: '40px', left: 0, right: 0,
+            position: 'fixed', bottom: '24px', left: 0, right: 0,
             textAlign: 'center', opacity: 0.3,
           }}>
             <p className="font-['Space_Grotesk'] text-xs uppercase tracking-widest"

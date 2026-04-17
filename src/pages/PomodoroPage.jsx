@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import FlipDigit from '../components/ui/FlipDigit'
 import PageHeader from '../components/layout/PageHeader'
 import { useApp, VIEWS } from '../context/AppContext'
@@ -7,6 +7,17 @@ import { usePomodoro } from '../hooks/usePomodoro'
 export default function PomodoroPage() {
   const { setCurrentView, zenMode, setZenMode } = useApp()
   const { m0, m1, s0, s1, isRunning, start, pause, reset, isFinished } = usePomodoro()
+
+  // 横屏自动清屏
+  useEffect(() => {
+    const handler = () => {
+      const isLandscape = window.innerWidth > window.innerHeight
+      setZenMode(isLandscape)
+    }
+    handler()
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [setZenMode])
 
   const handleClick = useCallback((e) => {
     if (e.target.closest('header')) return
@@ -40,8 +51,8 @@ export default function PomodoroPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-8">
-          <div className="flex gap-1 md:gap-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
             <FlipDigit value={m0} />
             <FlipDigit value={m1} />
           </div>
@@ -51,24 +62,26 @@ export default function PomodoroPage() {
             <div className="w-2 h-2 rounded-full transition-colors"
                  style={{ background: isRunning ? 'var(--accent)' : 'var(--border)' }} />
           </div>
-          <div className="flex gap-1 md:gap-2">
+          <div className="flex gap-1">
             <FlipDigit value={s0} />
             <FlipDigit value={s1} />
           </div>
         </div>
 
-        <div className="mt-12 text-center" style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s' }}>
+        {/* 状态文字 */}
+        <div className="mt-8 text-center" style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s' }}>
           <h2 className="font-['Space_Grotesk'] text-2xl font-bold"
               style={{ color: 'var(--text-primary)' }}>
             {isFinished ? '休息一下吧' : isRunning ? 'Deep Work Phase' : '准备开始'}
           </h2>
         </div>
 
-        <div className="absolute bottom-28 w-full px-12 flex flex-col items-center gap-10"
+        {/* 按钮区 */}
+        <div className="mt-10 w-full px-12 flex flex-col items-center gap-8"
              style={{ opacity: zenMode ? 0 : 1, transition: 'opacity 0.4s', pointerEvents: zenMode ? 'none' : 'auto' }}>
           <button
             onClick={isRunning ? pause : start}
-            className="w-full max-w-xs h-16 rounded-full font-['Space_Grotesk'] font-bold text-xl active:scale-95 transition-transform"
+            className="w-full max-w-xs h-14 rounded-full font-['Space_Grotesk'] font-bold text-xl active:scale-95 transition-transform"
             style={{
               background: 'linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black))',
               color: 'var(--bg-primary)',
@@ -96,7 +109,7 @@ export default function PomodoroPage() {
 
         {zenMode && (
           <div style={{
-            position: 'fixed', bottom: '40px', left: 0, right: 0,
+            position: 'fixed', bottom: '24px', left: 0, right: 0,
             textAlign: 'center', opacity: 0.3,
           }}>
             <p className="font-['Space_Grotesk'] text-xs uppercase tracking-widest"
