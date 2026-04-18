@@ -146,7 +146,15 @@ export function AppProvider({ children }) {
     if (playingMap[sound.id]) {
       stopSoundById(sound.id)
     } else {
-      audio.play()
+      // 恢复被 iOS 挂起的 AudioContext
+      if (typeof window !== 'undefined') {
+        const AudioContext = window.AudioContext || window.webkitAudioContext
+        if (AudioContext) {
+          const ctx = new AudioContext()
+          ctx.resume().then(() => ctx.close())
+        }
+      }
+      audio.play().catch(err => console.warn('play failed:', err))
       setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
     }
   }
