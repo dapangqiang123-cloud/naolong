@@ -105,10 +105,12 @@ export function AppProvider({ children }) {
   )
   const [wakeUpTime, setWakeUpTime] = useState({ hour: 7, minute: 0 })
   const [zenMode, setZenMode] = useState(false)
+
+  // 音效播放状态
   const [playingMap, setPlayingMap] = useState({})
+  // 每个音效的定时剩余秒数 { [id]: seconds | null }
   const [timerMap, setTimerMap] = useState({})
 
-  const audioCtxRef = useRef(null)
   const soundsRef = useRef({})
   const timerIntervalsRef = useRef({})
 
@@ -120,23 +122,19 @@ export function AppProvider({ children }) {
     localStorage.setItem(STORAGE_KEY, skinId)
   }
 
-  // 获取或初始化 AudioContext（必须在用户手势内调用）
-  const getAudioCtx = () => {
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+  const getOrCreateAudio = (sound) => {
+    if (!soundsRef.current[sound.id]) {
+      const audio = new Audio(sound.file)
+      audio.loop = true
+      audio.volume = 0.7
+      soundsRef.current[sound.id] = { audio }
     }
-    if (audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume()
-    }
-    return audioCtxRef.current
+    return soundsRef.current[sound.id].audio
   }
 
   const stopSoundById = (id) => {
-    const s = soundsRef.current[id]
-    if (s) {
-      try { s.source.stop() } catch {}
-      try { s.gainNode.disconnect() } catch {}
-      delete soundsRef.current[id]
+    if (soundsRef.current[id]) {
+      soundsRef.current[id].audio.pause()
     }
     clearInterval(timerIntervalsRef.current[id])
     setPlayingMap(prev => ({ ...prev, [id]: false }))
@@ -144,45 +142,23 @@ export function AppProvider({ children }) {
   }
 
   const toggleSound = (sound) => {
+    const audio = getOrCreateAudio(sound)
     if (playingMap[sound.id]) {
       stopSoundById(sound.id)
-      return
+    } else {
+      audio.play()
+      setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
     }
-
-    // 必须在点击事件同步链里调用
-    const ctx = getAudioCtx()
-
-    fetch(sound.file)
-      .then(r => r.arrayBuffer())
-      .then(buf => ctx.decodeAudioData(buf))
-      .then(decoded => {
-        // 如果用户在加载期间又点了一次，忽略
-        if (soundsRef.current[sound.id]) return
-
-        const source = ctx.createBufferSource()
-        source.buffer = decoded
-        source.loop = true
-
-        const gainNode = ctx.createGain()
-        gainNode.gain.value = 0.7
-
-        source.connect(gainNode)
-        gainNode.connect(ctx.destination)
-        source.start()
-
-        soundsRef.current[sound.id] = { source, gainNode }
-        setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
-      })
-      .catch(err => console.error('音效加载失败', err))
-
-    // 立即设为 true 防止重复点击
-    setPlayingMap(prev => ({ ...prev, [sound.id]: true }))
   }
 
+  // 设置定时关闭（分钟）
   const setSoundTimer = (sound, minutes) => {
+    // 清掉旧定时
     clearInterval(timerIntervalsRef.current[sound.id])
+
     let remaining = minutes * 60
     setTimerMap(prev => ({ ...prev, [sound.id]: remaining }))
+
     timerIntervalsRef.current[sound.id] = setInterval(() => {
       remaining -= 1
       if (remaining <= 0) {
@@ -193,6 +169,7 @@ export function AppProvider({ children }) {
     }, 1000)
   }
 
+  // 取消定时
   const clearSoundTimer = (sound) => {
     clearInterval(timerIntervalsRef.current[sound.id])
     setTimerMap(prev => ({ ...prev, [sound.id]: null }))
@@ -200,8 +177,7 @@ export function AppProvider({ children }) {
 
   const stopAllSounds = () => {
     Object.keys(soundsRef.current).forEach(id => {
-      const s = soundsRef.current[id]
-      try { s.source.stop() } catch {}
+      soundsRef.current[id].audio.pause()
       clearInterval(timerIntervalsRef.current[id])
     })
     soundsRef.current = {}
