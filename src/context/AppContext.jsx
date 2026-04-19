@@ -78,6 +78,13 @@ const SKIN_TOKENS = {
 }
 
 const STORAGE_KEY = 'naolong_skin'
+const POMODORO_KEY = 'naolong_pomodoro_duration'
+
+export const POMODORO_OPTIONS = [
+  { label: '25 min', value: 25 },
+  { label: '45 min', value: 45 },
+  { label: '60 min', value: 60 },
+]
 
 export const TIMER_OPTIONS = [
   { label: '10分钟', value: 10 },
@@ -105,10 +112,11 @@ export function AppProvider({ children }) {
   )
   const [wakeUpTime, setWakeUpTime] = useState({ hour: 7, minute: 0 })
   const [zenMode, setZenMode] = useState(false)
+  const [pomodoroDuration, setPomodoroDuration] = useState(
+    () => parseInt(localStorage.getItem(POMODORO_KEY) || '25', 10)
+  )
 
-  // 音效播放状态
   const [playingMap, setPlayingMap] = useState({})
-  // 每个音效的定时剩余秒数 { [id]: seconds | null }
   const [timerMap, setTimerMap] = useState({})
 
   const soundsRef = useRef({})
@@ -120,6 +128,11 @@ export function AppProvider({ children }) {
     setCurrentSkin(skinId)
     applySkin(skinId)
     localStorage.setItem(STORAGE_KEY, skinId)
+  }
+
+  const changePomodoroDuration = (minutes) => {
+    setPomodoroDuration(minutes)
+    localStorage.setItem(POMODORO_KEY, String(minutes))
   }
 
   const getOrCreateAudio = (sound) => {
@@ -146,7 +159,6 @@ export function AppProvider({ children }) {
     if (playingMap[sound.id]) {
       stopSoundById(sound.id)
     } else {
-      // 恢复被 iOS 挂起的 AudioContext
       if (typeof window !== 'undefined') {
         const AudioContext = window.AudioContext || window.webkitAudioContext
         if (AudioContext) {
@@ -159,14 +171,10 @@ export function AppProvider({ children }) {
     }
   }
 
-  // 设置定时关闭（分钟）
   const setSoundTimer = (sound, minutes) => {
-    // 清掉旧定时
     clearInterval(timerIntervalsRef.current[sound.id])
-
     let remaining = minutes * 60
     setTimerMap(prev => ({ ...prev, [sound.id]: remaining }))
-
     timerIntervalsRef.current[sound.id] = setInterval(() => {
       remaining -= 1
       if (remaining <= 0) {
@@ -177,7 +185,6 @@ export function AppProvider({ children }) {
     }, 1000)
   }
 
-  // 取消定时
   const clearSoundTimer = (sound) => {
     clearInterval(timerIntervalsRef.current[sound.id])
     setTimerMap(prev => ({ ...prev, [sound.id]: null }))
@@ -199,6 +206,7 @@ export function AppProvider({ children }) {
       currentSkin, changeSkin,
       wakeUpTime, setWakeUpTime,
       zenMode, setZenMode,
+      pomodoroDuration, changePomodoroDuration,
       skinTokens: SKIN_TOKENS,
       playingMap, timerMap,
       toggleSound, setSoundTimer, clearSoundTimer, stopAllSounds,

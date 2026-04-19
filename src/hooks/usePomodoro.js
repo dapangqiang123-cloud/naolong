@@ -1,11 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
-
-const POMODORO_SECONDS = 25 * 60 // 25分钟
+import { useApp } from '../context/AppContext'
 
 export function usePomodoro() {
-  const [timeLeft, setTimeLeft] = useState(POMODORO_SECONDS)
+  const { pomodoroDuration } = useApp()
+  const totalSeconds = pomodoroDuration * 60
+
+  const [timeLeft, setTimeLeft] = useState(totalSeconds)
   const [isRunning, setIsRunning] = useState(false)
   const intervalRef = useRef(null)
+
+  // 时长变化时重置
+  useEffect(() => {
+    setIsRunning(false)
+    setTimeLeft(pomodoroDuration * 60)
+  }, [pomodoroDuration])
 
   useEffect(() => {
     if (isRunning) {
@@ -14,7 +22,6 @@ export function usePomodoro() {
           if (prev <= 1) {
             clearInterval(intervalRef.current)
             setIsRunning(false)
-            console.log('🍅 番茄钟结束！')
             return 0
           }
           return prev - 1
@@ -35,7 +42,7 @@ export function usePomodoro() {
     isRunning,
     start: () => setIsRunning(true),
     pause: () => setIsRunning(false),
-    reset: () => { setIsRunning(false); setTimeLeft(POMODORO_SECONDS) },
+    reset: () => { setIsRunning(false); setTimeLeft(pomodoroDuration * 60) },
     isFinished: timeLeft === 0,
   }
 }
