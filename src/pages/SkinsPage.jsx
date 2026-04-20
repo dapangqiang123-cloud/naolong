@@ -65,6 +65,14 @@ const skinList = [
     digitColor: '#e8eaf0',
     accent: '#6366f1',
   },
+  {
+    id: SKINS.NEON_VOID,
+    name: 'Neon Void',
+    desc: '霓虹赛博朋克绿',
+    bg: '#0d1f0d',
+    digitColor: '#e0ffe0',
+    accent: '#00ff41',
+  },
 ]
 
 function MiniFlipCard({ bg, digitColor, digit, accent }) {

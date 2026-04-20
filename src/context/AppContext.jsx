@@ -20,6 +20,7 @@ export const SKINS = {
   STEEL_MACHINE: 'steel_machine',
   RAIN_WINDOW: 'rain_window',
   GHOST_CITY: 'ghost_city',
+  NEON_VOID: 'neon_void',
 }
 
 const SKIN_TOKENS = {
@@ -113,6 +114,18 @@ const SKIN_TOKENS = {
     '--accent': '#6366f1',
     '--accent-soft': 'rgba(99,102,241,0.15)',
     '--border': 'rgba(99,102,241,0.15)',
+  },
+  neon_void: {
+    name: '霓虹空洞',
+    variant: 'mechanical',
+    '--bg-primary': '#030a03',
+    '--bg-secondary': '#071007',
+    '--bg-card': '#0d1f0d',
+    '--text-primary': '#e0ffe0',
+    '--text-secondary': '#3a7a3a',
+    '--accent': '#00ff41',
+    '--accent-soft': 'rgba(0,255,65,0.12)',
+    '--border': 'rgba(0,255,65,0.20)',
   },
 }
 
