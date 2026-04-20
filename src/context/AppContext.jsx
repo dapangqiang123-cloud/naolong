@@ -17,6 +17,9 @@ export const SKINS = {
   EMBER_FORGE: 'ember_forge',
   SAGE_DUSK: 'sage_dusk',
   BLOOD_MOON: 'blood_moon',
+  STEEL_MACHINE: 'steel_machine',
+  RAIN_WINDOW: 'rain_window',
+  GHOST_CITY: 'ghost_city',
 }
 
 const SKIN_TOKENS = {
@@ -75,6 +78,42 @@ const SKIN_TOKENS = {
     '--accent-soft': 'rgba(220,38,38,0.15)',
     '--border': 'rgba(220,38,38,0.15)',
   },
+  steel_machine: {
+    name: '钢铁机械',
+    variant: 'mechanical',
+    '--bg-primary': '#141414',
+    '--bg-secondary': '#1c1c1c',
+    '--bg-card': '#2c2c2e',
+    '--text-primary': '#f0f0f0',
+    '--text-secondary': '#888888',
+    '--accent': '#a8a8a8',
+    '--accent-soft': 'rgba(168,168,168,0.15)',
+    '--border': 'rgba(255,255,255,0.08)',
+  },
+  rain_window: {
+    name: '雨窗',
+    variant: 'minimal',
+    '--bg-primary': '#f7f7f5',
+    '--bg-secondary': '#efefed',
+    '--bg-card': '#ffffff',
+    '--text-primary': '#1a1a1a',
+    '--text-secondary': '#888888',
+    '--accent': '#1a1a1a',
+    '--accent-soft': 'rgba(0,0,0,0.06)',
+    '--border': 'rgba(0,0,0,0.10)',
+  },
+  ghost_city: {
+    name: '幽灵城市',
+    variant: 'ghost',
+    '--bg-primary': '#111318',
+    '--bg-secondary': '#16191f',
+    '--bg-card': '#1e2128',
+    '--text-primary': '#e8eaf0',
+    '--text-secondary': '#60657a',
+    '--accent': '#6366f1',
+    '--accent-soft': 'rgba(99,102,241,0.15)',
+    '--border': 'rgba(99,102,241,0.15)',
+  },
 }
 
 const STORAGE_KEY = 'naolong_skin'
@@ -115,6 +154,7 @@ export function AppProvider({ children }) {
   )
   const [wakeUpTime, setWakeUpTime] = useState({ hour: 7, minute: 0 })
   const [zenMode, setZenMode] = useState(false)
+  const currentVariant = SKIN_TOKENS[currentSkin]?.variant || 'default'
   const [pomodoroDuration, setPomodoroDuration] = useState(
     () => parseInt(localStorage.getItem(POMODORO_KEY) || '25', 10)
   )
@@ -209,6 +249,7 @@ export function AppProvider({ children }) {
       currentSkin, changeSkin,
       wakeUpTime, setWakeUpTime,
       zenMode, setZenMode,
+      currentVariant,
       pomodoroDuration, changePomodoroDuration,
       skinTokens: SKIN_TOKENS,
       playingMap, timerMap,

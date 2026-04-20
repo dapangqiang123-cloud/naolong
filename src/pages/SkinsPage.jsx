@@ -41,6 +41,30 @@ const skinList = [
     digitColor: '#f5d0d0',
     accent: '#dc2626',
   },
+  {
+    id: SKINS.STEEL_MACHINE,
+    name: 'Steel Machine',
+    desc: '钢铁机械立体感',
+    bg: '#2c2c2e',
+    digitColor: '#f0f0f0',
+    accent: '#a8a8a8',
+  },
+  {
+    id: SKINS.RAIN_WINDOW,
+    name: 'Rain Window',
+    desc: '雨窗极简白',
+    bg: '#ffffff',
+    digitColor: '#1a1a1a',
+    accent: '#1a1a1a',
+  },
+  {
+    id: SKINS.GHOST_CITY,
+    name: 'Ghost City',
+    desc: '幽灵城市无边框',
+    bg: '#1e2128',
+    digitColor: '#e8eaf0',
+    accent: '#6366f1',
+  },
 ]
 
 function MiniFlipCard({ bg, digitColor, digit, accent }) {

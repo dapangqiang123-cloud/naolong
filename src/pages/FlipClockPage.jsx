@@ -6,7 +6,7 @@ import { useApp, VIEWS } from '../context/AppContext'
 
 export default function FlipClockPage() {
   const { h0, h1, m0, m1, ampm } = useFlipClock()
-  const { zenMode, setZenMode } = useApp()
+  const { zenMode, setZenMode, currentVariant } = useApp()
 
   useEffect(() => {
     const handler = () => {
@@ -53,8 +53,8 @@ export default function FlipClockPage() {
 
         <div className="flex items-center gap-3 w-full justify-center px-2">
           <div className="flex gap-2">
-            <FlipDigit value={h0} className={digitClass} digitClass={digitTextClass} />
-            <FlipDigit value={h1} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={h0} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
+            <FlipDigit value={h1} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
           </div>
           <div className={`flex flex-col mb-1 ${zenMode ? 'gap-4' : 'gap-3'}`}>
             <div className={`rounded-full ${zenMode ? 'w-3 h-3' : 'w-2 h-2'}`}
@@ -63,8 +63,8 @@ export default function FlipClockPage() {
                  style={{ background: 'var(--accent)' }} />
           </div>
           <div className="flex gap-2">
-            <FlipDigit value={m0} className={digitClass} digitClass={digitTextClass} />
-            <FlipDigit value={m1} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={m0} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
+            <FlipDigit value={m1} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
           </div>
         </div>
 

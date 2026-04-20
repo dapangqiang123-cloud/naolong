@@ -5,7 +5,7 @@ import { useApp, VIEWS } from '../context/AppContext'
 import { usePomodoro } from '../hooks/usePomodoro'
 
 export default function PomodoroPage() {
-  const { setCurrentView, zenMode, setZenMode } = useApp()
+  const { setCurrentView, zenMode, setZenMode, currentVariant } = useApp()
   const { m0, m1, s0, s1, isRunning, start, pause, reset, isFinished } = usePomodoro()
 
   useEffect(() => {
@@ -46,8 +46,8 @@ export default function PomodoroPage() {
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
         <div className="flex items-center gap-2 w-full justify-center px-2">
           <div className="flex gap-2">
-            <FlipDigit value={m0} className={digitClass} digitClass={digitTextClass} />
-            <FlipDigit value={m1} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={m0} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
+            <FlipDigit value={m1} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
           </div>
           <div className={`flex flex-col mb-1 ${zenMode ? 'gap-4' : 'gap-3'}`}>
             <div className={`rounded-full transition-colors ${zenMode ? 'w-3 h-3' : 'w-2 h-2'}`}
@@ -56,8 +56,8 @@ export default function PomodoroPage() {
                  style={{ background: isRunning ? 'var(--accent)' : 'var(--border)' }} />
           </div>
           <div className="flex gap-2">
-            <FlipDigit value={s0} className={digitClass} digitClass={digitTextClass} />
-            <FlipDigit value={s1} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={s0} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
+            <FlipDigit value={s1} className={digitClass} digitClass={digitTextClass} variant={currentVariant} />
           </div>
         </div>
 
