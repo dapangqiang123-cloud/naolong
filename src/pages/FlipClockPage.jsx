@@ -23,6 +23,14 @@ export default function FlipClockPage() {
     setZenMode(v => !v)
   }, [setZenMode])
 
+  // 横屏清屏时用大尺寸
+  const digitClass = zenMode
+    ? 'w-[19vw] h-[42vw] max-w-none max-h-none'
+    : 'w-[20vw] h-[30vw] max-w-[100px] max-h-[150px]'
+  const digitTextClass = zenMode
+    ? 'text-[22vw]'
+    : 'text-[11vw] max-text-7xl'
+
   return (
     <div
       className="relative min-h-screen overflow-hidden flex flex-col"
@@ -43,28 +51,32 @@ export default function FlipClockPage() {
           </div>
         )}
 
-        <div className="flex items-center gap-3 w-full justify-center px-6">
+        <div className="flex items-center gap-3 w-full justify-center px-2">
           <div className="flex gap-2">
-            <FlipDigit value={h0} />
-            <FlipDigit value={h1} />
+            <FlipDigit value={h0} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={h1} className={digitClass} digitClass={digitTextClass} />
           </div>
-          <div className="flex flex-col gap-3 mb-1">
-            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)' }} />
-            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)' }} />
+          <div className={`flex flex-col mb-1 ${zenMode ? 'gap-4' : 'gap-3'}`}>
+            <div className={`rounded-full ${zenMode ? 'w-3 h-3' : 'w-2 h-2'}`}
+                 style={{ background: 'var(--accent)' }} />
+            <div className={`rounded-full ${zenMode ? 'w-3 h-3' : 'w-2 h-2'}`}
+                 style={{ background: 'var(--accent)' }} />
           </div>
           <div className="flex gap-2">
-            <FlipDigit value={m0} />
-            <FlipDigit value={m1} />
+            <FlipDigit value={m0} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={m1} className={digitClass} digitClass={digitTextClass} />
           </div>
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
-          <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em]"
-                style={{ color: ampm === 'AM' ? 'var(--accent)' : 'var(--border)' }}>AM</span>
-          <div className="w-px h-4" style={{ background: 'var(--border)' }} />
-          <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em]"
-                style={{ color: ampm === 'PM' ? 'var(--accent)' : 'var(--border)' }}>PM</span>
-        </div>
+        {!zenMode && (
+          <div className="mt-6 flex items-center gap-3">
+            <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em]"
+                  style={{ color: ampm === 'AM' ? 'var(--accent)' : 'var(--border)' }}>AM</span>
+            <div className="w-px h-4" style={{ background: 'var(--border)' }} />
+            <span className="font-['Space_Grotesk'] text-sm font-bold tracking-[0.3em]"
+                  style={{ color: ampm === 'PM' ? 'var(--accent)' : 'var(--border)' }}>PM</span>
+          </div>
+        )}
 
         {!zenMode && (
           <div className="mt-12 text-center">
