@@ -18,14 +18,6 @@ const skinList = [
     accent: '#8b4513',
   },
   {
-    id: SKINS.MIDNIGHT_TOKYO,
-    name: 'Midnight Tokyo',
-    desc: '午夜霓虹赛博感',
-    bg: '#1a1a38',
-    digitColor: '#e8e0ff',
-    accent: '#c084fc',
-  },
-  {
     id: SKINS.EMBER_FORGE,
     name: 'Ember Forge',
     desc: '熔炉余烬工业橙',
@@ -34,12 +26,20 @@ const skinList = [
     accent: '#f97316',
   },
   {
-    id: SKINS.ARCTIC_MIST,
-    name: 'Arctic Mist',
-    desc: '极地冷雾北欧蓝',
-    bg: '#d8e4ef',
-    digitColor: '#1a2a3a',
-    accent: '#2563eb',
+    id: SKINS.SAGE_DUSK,
+    name: 'Sage Dusk',
+    desc: '暮色青苔日系感',
+    bg: '#2f3b32',
+    digitColor: '#d4ddd5',
+    accent: '#8fbc8f',
+  },
+  {
+    id: SKINS.BLOOD_MOON,
+    name: 'Blood Moon',
+    desc: '暗夜血月极致黑',
+    bg: '#200c0c',
+    digitColor: '#f5d0d0',
+    accent: '#dc2626',
   },
 ]
 

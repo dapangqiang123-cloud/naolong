@@ -14,9 +14,9 @@ export const VIEWS = {
 export const SKINS = {
   CLASSIC_MONO: 'classic_mono',
   VINTAGE_LATTE: 'vintage_latte',
-  MIDNIGHT_TOKYO: 'midnight_tokyo',
   EMBER_FORGE: 'ember_forge',
-  ARCTIC_MIST: 'arctic_mist',
+  SAGE_DUSK: 'sage_dusk',
+  BLOOD_MOON: 'blood_moon',
 }
 
 const SKIN_TOKENS = {
@@ -42,17 +42,6 @@ const SKIN_TOKENS = {
     '--accent-soft': 'rgba(139,69,19,0.12)',
     '--border': 'rgba(139,69,19,0.15)',
   },
-  midnight_tokyo: {
-    name: '午夜东京',
-    '--bg-primary': '#0d0d1a',
-    '--bg-secondary': '#13132b',
-    '--bg-card': '#1a1a38',
-    '--text-primary': '#e8e0ff',
-    '--text-secondary': '#9b8ec4',
-    '--accent': '#c084fc',
-    '--accent-soft': 'rgba(192,132,252,0.15)',
-    '--border': 'rgba(192,132,252,0.15)',
-  },
   ember_forge: {
     name: '熔炉余烬',
     '--bg-primary': '#0f0a06',
@@ -64,16 +53,27 @@ const SKIN_TOKENS = {
     '--accent-soft': 'rgba(249,115,22,0.15)',
     '--border': 'rgba(249,115,22,0.15)',
   },
-  arctic_mist: {
-    name: '极地白雾',
-    '--bg-primary': '#f0f4f8',
-    '--bg-secondary': '#e2eaf2',
-    '--bg-card': '#d8e4ef',
-    '--text-primary': '#1a2a3a',
-    '--text-secondary': '#4a6a8a',
-    '--accent': '#2563eb',
-    '--accent-soft': 'rgba(37,99,235,0.10)',
-    '--border': 'rgba(37,99,235,0.12)',
+  sage_dusk: {
+    name: '暮色青苔',
+    '--bg-primary': '#1e2420',
+    '--bg-secondary': '#252e28',
+    '--bg-card': '#2f3b32',
+    '--text-primary': '#d4ddd5',
+    '--text-secondary': '#7a9b80',
+    '--accent': '#8fbc8f',
+    '--accent-soft': 'rgba(143,188,143,0.15)',
+    '--border': 'rgba(143,188,143,0.15)',
+  },
+  blood_moon: {
+    name: '血月',
+    '--bg-primary': '#0a0404',
+    '--bg-secondary': '#150808',
+    '--bg-card': '#200c0c',
+    '--text-primary': '#f5d0d0',
+    '--text-secondary': '#a05050',
+    '--accent': '#dc2626',
+    '--accent-soft': 'rgba(220,38,38,0.15)',
+    '--border': 'rgba(220,38,38,0.15)',
   },
 }
 
