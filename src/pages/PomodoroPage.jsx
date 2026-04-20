@@ -24,6 +24,13 @@ export default function PomodoroPage() {
     setZenMode(v => !v)
   }, [setZenMode])
 
+  const digitClass = zenMode
+    ? 'w-[19vw] h-[42vw] max-w-none max-h-none'
+    : 'w-[20vw] h-[30vw] max-w-[100px] max-h-[150px]'
+  const digitTextClass = zenMode
+    ? 'text-[22vw]'
+    : 'text-[11vw] max-text-7xl'
+
   return (
     <div
       className="relative min-h-screen overflow-hidden flex flex-col"
@@ -34,25 +41,23 @@ export default function PomodoroPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1f1f1f_0%,transparent_100%)]" />
       </div>
 
-      {!zenMode && (
-        <PageHeader currentTab={VIEWS.POMODORO} />
-      )}
+      {!zenMode && <PageHeader currentTab={VIEWS.POMODORO} />}
 
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            <FlipDigit value={m0} />
-            <FlipDigit value={m1} />
+        <div className="flex items-center gap-2 w-full justify-center px-2">
+          <div className="flex gap-2">
+            <FlipDigit value={m0} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={m1} className={digitClass} digitClass={digitTextClass} />
           </div>
-          <div className="flex flex-col gap-3 mb-1">
-            <div className="w-2 h-2 rounded-full transition-colors"
+          <div className={`flex flex-col mb-1 ${zenMode ? 'gap-4' : 'gap-3'}`}>
+            <div className={`rounded-full transition-colors ${zenMode ? 'w-3 h-3' : 'w-2 h-2'}`}
                  style={{ background: isRunning ? 'var(--accent)' : 'var(--border)' }} />
-            <div className="w-2 h-2 rounded-full transition-colors"
+            <div className={`rounded-full transition-colors ${zenMode ? 'w-3 h-3' : 'w-2 h-2'}`}
                  style={{ background: isRunning ? 'var(--accent)' : 'var(--border)' }} />
           </div>
-          <div className="flex gap-1">
-            <FlipDigit value={s0} />
-            <FlipDigit value={s1} />
+          <div className="flex gap-2">
+            <FlipDigit value={s0} className={digitClass} digitClass={digitTextClass} />
+            <FlipDigit value={s1} className={digitClass} digitClass={digitTextClass} />
           </div>
         </div>
 
