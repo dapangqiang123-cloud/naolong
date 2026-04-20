@@ -13,10 +13,10 @@ export const VIEWS = {
 
 export const SKINS = {
   CLASSIC_MONO: 'classic_mono',
-  BRUTALIST_WHITE: 'brutalist_white',
-  MECHANICAL_OLIVE: 'mechanical_olive',
-  DEEP_VOID: 'deep_void',
   VINTAGE_LATTE: 'vintage_latte',
+  MIDNIGHT_TOKYO: 'midnight_tokyo',
+  EMBER_FORGE: 'ember_forge',
+  ARCTIC_MIST: 'arctic_mist',
 }
 
 const SKIN_TOKENS = {
@@ -31,39 +31,6 @@ const SKIN_TOKENS = {
     '--accent-soft': 'rgba(189,205,154,0.15)',
     '--border': 'rgba(189,205,154,0.15)',
   },
-  brutalist_white: {
-    name: '极光白',
-    '--bg-primary': '#f5f5f7',
-    '--bg-secondary': '#ffffff',
-    '--bg-card': '#ffffff',
-    '--text-primary': '#1d1d1f',
-    '--text-secondary': '#6e6e73',
-    '--accent': '#7c3aed',
-    '--accent-soft': 'rgba(124,58,237,0.10)',
-    '--border': 'rgba(0,0,0,0.08)',
-  },
-  mechanical_olive: {
-    name: '机械橄榄',
-    '--bg-primary': '#0a130d',
-    '--bg-secondary': '#111f14',
-    '--bg-card': '#162419',
-    '--text-primary': '#e8f5ea',
-    '--text-secondary': '#7aad84',
-    '--accent': '#4ade80',
-    '--accent-soft': 'rgba(74,222,128,0.15)',
-    '--border': 'rgba(74,222,128,0.12)',
-  },
-  deep_void: {
-    name: '深海',
-    '--bg-primary': '#071428',
-    '--bg-secondary': '#0d1f3c',
-    '--bg-card': '#102244',
-    '--text-primary': '#e8f4ff',
-    '--text-secondary': '#7aaed4',
-    '--accent': '#38bdf8',
-    '--accent-soft': 'rgba(56,189,248,0.15)',
-    '--border': 'rgba(56,189,248,0.12)',
-  },
   vintage_latte: {
     name: '复古拿铁',
     '--bg-primary': '#f0e6d3',
@@ -74,6 +41,39 @@ const SKIN_TOKENS = {
     '--accent': '#8b4513',
     '--accent-soft': 'rgba(139,69,19,0.12)',
     '--border': 'rgba(139,69,19,0.15)',
+  },
+  midnight_tokyo: {
+    name: '午夜东京',
+    '--bg-primary': '#0d0d1a',
+    '--bg-secondary': '#13132b',
+    '--bg-card': '#1a1a38',
+    '--text-primary': '#e8e0ff',
+    '--text-secondary': '#9b8ec4',
+    '--accent': '#c084fc',
+    '--accent-soft': 'rgba(192,132,252,0.15)',
+    '--border': 'rgba(192,132,252,0.15)',
+  },
+  ember_forge: {
+    name: '熔炉余烬',
+    '--bg-primary': '#0f0a06',
+    '--bg-secondary': '#1a1008',
+    '--bg-card': '#251810',
+    '--text-primary': '#f5e6d0',
+    '--text-secondary': '#a07850',
+    '--accent': '#f97316',
+    '--accent-soft': 'rgba(249,115,22,0.15)',
+    '--border': 'rgba(249,115,22,0.15)',
+  },
+  arctic_mist: {
+    name: '极地白雾',
+    '--bg-primary': '#f0f4f8',
+    '--bg-secondary': '#e2eaf2',
+    '--bg-card': '#d8e4ef',
+    '--text-primary': '#1a2a3a',
+    '--text-secondary': '#4a6a8a',
+    '--accent': '#2563eb',
+    '--accent-soft': 'rgba(37,99,235,0.10)',
+    '--border': 'rgba(37,99,235,0.12)',
   },
 }
 
@@ -108,7 +108,10 @@ export { SKIN_TOKENS }
 export function AppProvider({ children }) {
   const [currentView, setCurrentView] = useState(VIEWS.CLOCK)
   const [currentSkin, setCurrentSkin] = useState(
-    () => localStorage.getItem(STORAGE_KEY) || SKINS.CLASSIC_MONO
+    () => {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      return saved && SKIN_TOKENS[saved] ? saved : SKINS.CLASSIC_MONO
+    }
   )
   const [wakeUpTime, setWakeUpTime] = useState({ hour: 7, minute: 0 })
   const [zenMode, setZenMode] = useState(false)
