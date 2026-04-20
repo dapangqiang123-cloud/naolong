@@ -24,6 +24,8 @@ export default function PomodoroPage() {
     setZenMode(v => !v)
   }, [setZenMode])
 
+  const isGhost = currentVariant === 'ghost'
+
   const digitClass = zenMode
     ? 'w-[19vw] h-[42vw] max-w-none max-h-none'
     : 'w-[20vw] h-[30vw] max-w-[100px] max-h-[150px]'
@@ -37,9 +39,28 @@ export default function PomodoroPage() {
       style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
       onClick={handleClick}
     >
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1f1f1f_0%,transparent_100%)]" />
-      </div>
+      {isGhost && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <div style={{
+            position: 'absolute', inset: '-50px',
+            backgroundImage: 'url(https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(20px) brightness(0.35) grayscale(100%)',
+            transform: 'scale(1.05)',
+          }} />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to bottom, rgba(17,19,24,0.4), transparent, rgba(17,19,24,0.6))',
+          }} />
+        </div>
+      )}
+
+      {!isGhost && (
+        <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1f1f1f_0%,transparent_100%)]" />
+        </div>
+      )}
 
       {!zenMode && <PageHeader currentTab={VIEWS.POMODORO} />}
 

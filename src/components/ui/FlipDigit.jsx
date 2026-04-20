@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 
-// variant: 'default' | 'mechanical' | 'minimal' | 'ghost'
 export default function FlipDigit({
   value,
   className = 'w-[20vw] h-[30vw] max-w-[100px] max-h-[150px]',
@@ -21,48 +20,49 @@ export default function FlipDigit({
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [value])
 
-  // ghost: 无卡片，纯数字
+  // ghost: 无卡片纯数字
   if (variant === 'ghost') {
     return (
       <div className={`relative flex items-center justify-center ${className}`}
            style={{ background: 'transparent' }}>
-        <span className={`font-['Space_Grotesk'] font-bold select-none leading-none ${digitClass}`}
-              style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+        <span className={`font-['Space_Grotesk'] font-light select-none leading-none ${digitClass}`}
+              style={{ color: 'var(--text-primary)', opacity: 0.85, letterSpacing: '-0.05em' }}>
           {current}
         </span>
       </div>
     )
   }
 
-  // minimal: 方角白卡，细字体，无翻页动画阴影
+  // minimal: Rain Window — 方角白卡，细字体，极简
   if (variant === 'minimal') {
     return (
       <div className={`relative overflow-hidden ${className}`}
            style={{
              background: 'var(--bg-card)',
-             borderRadius: '6px',
-             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+             borderRadius: '0px',
+             boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
              border: '1px solid var(--border)',
            }}>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`font-['Space_Grotesk'] font-light select-none leading-none ${digitClass}`}
-                style={{ color: 'var(--text-primary)' }}>{current}</span>
+          <span className={`font-['Manrope'] font-thin select-none leading-none ${digitClass}`}
+                style={{ color: 'var(--text-primary)', letterSpacing: '-0.04em' }}>{current}</span>
         </div>
+        {/* Ghost line */}
         <div className="absolute top-1/2 left-0 right-0 h-[1px] -translate-y-1/2 z-20 pointer-events-none"
-             style={{ background: 'var(--border)' }} />
+             style={{ background: 'rgba(0,0,0,0.08)' }} />
         {flipping && (<>
           <div className="absolute top-0 left-0 right-0 h-1/2 overflow-hidden z-30"
                style={{ transformOrigin: 'bottom center', animation: 'flipTopLeaf 0.26s ease-in forwards', background: 'var(--bg-card)' }}>
             <div className="w-full h-full flex items-end justify-center overflow-hidden">
-              <span className={`font-['Space_Grotesk'] font-light select-none leading-none ${digitClass}`}
-                    style={{ marginBottom: '-50%', color: 'var(--text-primary)' }}>{prev}</span>
+              <span className={`font-['Manrope'] font-thin select-none leading-none ${digitClass}`}
+                    style={{ marginBottom: '-50%', color: 'var(--text-primary)', letterSpacing: '-0.04em' }}>{prev}</span>
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-1/2 overflow-hidden z-30"
                style={{ transformOrigin: 'top center', animation: 'flipBottomLeaf 0.26s ease-out 0.25s forwards', transform: 'rotateX(90deg)', background: 'var(--bg-card)' }}>
             <div className="w-full h-full flex items-start justify-center overflow-hidden">
-              <span className={`font-['Space_Grotesk'] font-light select-none leading-none ${digitClass}`}
-                    style={{ marginTop: '-50%', color: 'var(--text-primary)' }}>{current}</span>
+              <span className={`font-['Manrope'] font-thin select-none leading-none ${digitClass}`}
+                    style={{ marginTop: '-50%', color: 'var(--text-primary)', letterSpacing: '-0.04em' }}>{current}</span>
             </div>
           </div>
         </>)}
@@ -70,30 +70,40 @@ export default function FlipDigit({
     )
   }
 
-  // mechanical: 立体金属感，强阴影，上下分隔更厚
+  // mechanical: Steel Machine — 立体金属，强阴影，螺丝钉，渐变高光
   if (variant === 'mechanical') {
     return (
       <div className={`relative overflow-hidden ${className}`}
            style={{
              background: 'var(--bg-card)',
-             borderRadius: '8px',
-             boxShadow: '0 12px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.5)',
+             borderRadius: '6px',
+             boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.05), 0 8px 16px rgba(0,0,0,0.8), 0 24px 48px rgba(0,0,0,0.6)',
              border: '1px solid rgba(255,255,255,0.06)',
            }}>
-        {/* 顶部高光 */}
-        <div className="absolute top-0 left-0 right-0 h-px z-10"
-             style={{ background: 'rgba(255,255,255,0.12)' }} />
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* 顶部高光渐变 */}
+        <div className="absolute inset-x-0 top-0 h-1/2 z-0 pointer-events-none"
+             style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), transparent)' }} />
+        {/* 四角螺丝钉 */}
+        <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full z-10"
+             style={{ background: 'var(--bg-secondary)', boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.8)' }} />
+        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full z-10"
+             style={{ background: 'var(--bg-secondary)', boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.8)' }} />
+        <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full z-10"
+             style={{ background: 'var(--bg-secondary)', boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.8)' }} />
+        <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full z-10"
+             style={{ background: 'var(--bg-secondary)', boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.8)' }} />
+        <div className="absolute inset-0 flex items-center justify-center z-10">
           <span className={`font-['Space_Grotesk'] font-bold select-none leading-none ${digitClass}`}
                 style={{ color: 'var(--text-primary)', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{current}</span>
         </div>
-        {/* 中间分隔线更厚 */}
+        {/* 中间分隔线 */}
         <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 z-20 pointer-events-none"
-             style={{ height: '3px', background: 'var(--bg-primary)', boxShadow: '0 1px 4px rgba(0,0,0,0.8)' }} />
+             style={{ height: '3px', background: 'var(--bg-primary)', boxShadow: '0 1px 4px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)' }} />
         {flipping && (<>
           <div className="absolute top-0 left-0 right-0 h-1/2 overflow-hidden z-30"
                style={{ transformOrigin: 'bottom center', animation: 'flipTopLeaf 0.26s ease-in forwards', background: 'var(--bg-card)' }}>
-            <div className="w-full h-full flex items-end justify-center overflow-hidden">
+            <div className="w-full h-full flex items-end justify-center overflow-hidden"
+                 style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.04), transparent)' }}>
               <span className={`font-['Space_Grotesk'] font-bold select-none leading-none ${digitClass}`}
                     style={{ marginBottom: '-50%', color: 'var(--text-primary)' }}>{prev}</span>
             </div>
@@ -110,7 +120,7 @@ export default function FlipDigit({
     )
   }
 
-  // default: 原有样式
+  // default
   return (
     <div className={`relative rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] ${className}`}
          style={{ perspective: '600px', background: 'var(--bg-card)' }}>
